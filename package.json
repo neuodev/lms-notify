@@ -1,0 +1,11 @@
+{
+  "name": "lms-notify",
+  "version": "1.0.0",
+  "description": "LMS notification plugin",
+  "license": "MIT",
+  "private": true,
+  "scripts": {},
+  "keywords": [],
+  "author": "Ahmed Ghait <me@ahmedibrahim.dev>",
+  "packageManager": "pnpm@10.28.0"
+}

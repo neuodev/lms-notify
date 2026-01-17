@@ -1,0 +1,21 @@
+{
+  "name": "@lms-notify/api",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "Ahmed Ghait <me@ahmedibrahim.dev>",
+  "packageManager": "pnpm@10.28.0",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.9",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
