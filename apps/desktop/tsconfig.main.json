@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./src/main",
+    "outDir": "./dist/main",
+
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    // For nodejs:
+    "lib": ["esnext"],
+    "types": ["node"],
+
+    // Style Options
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    "paths": {
+      "@/*": ["./src/main/*"],
+    },
+  },
+  "include": ["src/main/**/*"],
+}

@@ -1,4 +1,11 @@
 packages:
-  - "services/*"
-  - "packages/*"
-  - "apps/*"
+  - services/*
+  - packages/*
+  - apps/*
+
+onlyBuiltDependencies:
+  - baileys
+  - electron
+  - electron-winstaller
+  - protobufjs
+  - sharp

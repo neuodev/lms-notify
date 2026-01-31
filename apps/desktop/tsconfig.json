@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     // For nodejs:
-    "lib": ["esnext"],
+    "lib": ["esnext", "ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"],
 
     // Other Outputs
