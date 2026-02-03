@@ -4,14 +4,14 @@
   "description": "LMS Notify Desktop Application",
   "main": "dist/main/index.js",
   "scripts": {
+    "dev": "pnpm build && pnpm start",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "prepare": "ts-patch install -s",
     "build:main": "tsc --project tsconfig.main.json",
     "build:inject": "tsc --project tsconfig.inject.json",
-    "build": "pnpm build:main && pnpm build:inject",
-    "dev": "pnpm build && pnpm start"
+    "build": "pnpm build:main && pnpm build:inject"
   },
   "keywords": [],
   "author": "Ahmed Ghait <me@ahmedibrahim.dev>",

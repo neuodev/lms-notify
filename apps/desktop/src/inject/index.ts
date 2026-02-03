@@ -18,6 +18,42 @@
 // )
 //   .then((res) => res.json())
 //   .then(console.log);
+//
+const token = localStorage.getItem("token")
+
+// fetch("https://nvsapi.learnovia.com/api/user/get-all?page=1&paginate=10", {
+//   "headers": {
+//     "accept": "application/json",
+//     "authorization": `Bearer ${token}`,
+//     "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\"",
+//     "sec-ch-ua-mobile": "?0",
+//     "sec-ch-ua-platform": "\"Linux\""
+//   },
+//   "referrer": "https://nvs.learnovia.com/",
+//   "body": null,
+//   "method": "GET",
+//   "mode": "cors",
+//   "credentials": "include"
+// })
+//   .then((res) => res.json())
+//   .then((res) => console.log("DATA", res));
+
+fetch("https://nvsapi.learnovia.com/api/user/get-all?paginate=10&page=1&roles%5B0%5D=3", {
+  "headers": {
+    "accept": "application/json",
+    "authorization": `Bearer ${token}`,
+    "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Linux\""
+  },
+  "referrer": "https://nvs.learnovia.com/",
+  "body": null,
+  "method": "GET",
+  "mode": "cors",
+  "credentials": "include"
+}).then((res) => res.json())
+  .then((res) => console.log("DATA STUDENT", res))
+// .then((data) => console.log("DATA STUDENT", { data.roles?.name }));
 
 // var child = document.createElement('link')
 // child.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css');
@@ -27,94 +63,109 @@
 // document.querySelector('head').appendChild(child)
 
 const cssStyles = `
-  .whatsapp__wrapper {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
-    background-color: #fff;
-    border-radius: 10px;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
+.whatsapp__wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  border: none;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  cursor: pointer;
+}
 
+.whatsapp__wrapper:hover {
+  transform: scale(1.05);
+}
 
-  .model {
-    position: fixed;
-    z-index: 9999;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    border-radius: 10px;
-    width: 512px;
-    min-height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    padding: 12px;
-  }
+.model {
+  position: fixed;
+  z-index: 10000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  width: 420px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.3);
+  padding: 16px;
+  font-family: system-ui, sans-serif;
+}
 
-  .model__header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
+.model__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
 
-  .model__close {
-    position: absolute;
-    top: 50%;
-    right: 0px;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-  }
+.model_title {
+  font-size: 16px;
+  font-weight: 600;
+}
 
-  .model_title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 0px !important;
-  }
+.model__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
 
-  .model_content {
-    margin-top: 12px;
-    flex: 1;
-  }
+.model_content {
+  margin-top: 12px;
+}
 
-  .model_textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
+.model_textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: none;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
 
-  .model_textarea:focus {
-    outline: none;
-    border-color: #007bff;
-  }
+.model_textarea:focus {
+  outline: none;
+  border-color: #25d366;
+}
 
-  .hidden {
-    display: none;
-  }
+.model select {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
 
-  .show {
-    display: unset;
-  }
+.model button.send {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
+.model button.send:disabled {
+  background: #9be5b5;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none;
+}
   `;
 
 function preload() {
@@ -167,6 +218,22 @@ function mountModel() {
     model?.classList.remove("show");
   });
 
+  const select = document.createElement("select");
+  select.style.width = "100%";
+  select.style.marginTop = "12px";
+  select.style.padding = "8px";
+
+  select.innerHTML = `
+  <option value="">-- اختار المستلمين --</option>
+  <option value="all-parents">كل أولياء الأمور</option>
+  <option value="teachers">كل المدرسين</option>
+
+    <optgroup label="الجروبات">
+    <option value="group:class-1a">أولياء أمور فصل 1A</option>
+    <option value="group:teachers">جروب المدرسين</option>
+  </optgroup>
+`;
+
   const content = document.createElement("div");
   content.classList.add("model_content");
 
@@ -174,16 +241,71 @@ function mountModel() {
   input.classList.add("model_textarea");
   input.placeholder = "الرسالة";
 
+
+  const sendButton = document.createElement("button");
+  sendButton.innerText = "إرسال";
+  sendButton.style.marginTop = "12px";
+  sendButton.style.padding = "8px";
+  sendButton.style.cursor = "pointer";
+  sendButton.style.width = "100%";
+
+  sendButton.addEventListener("click", async () => {
+    const message = input.value.trim();
+    const target = select.value;
+
+    if (!message) {
+      alert("اكتب الرسالة");
+      return;
+    }
+
+    if (!target) {
+      alert("اختار المستلمين");
+      return;
+    }
+
+    sendButton.classList.add("send");
+    sendButton.disabled = true;
+    sendButton.innerText = "جارٍ الإرسال...";
+    try {
+      await fetch("http://localhost:3000/msg", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          target,
+        }),
+      });
+
+      sendButton.disabled = false;
+      sendButton.innerText = "إرسال عبر واتساب";
+
+      input.value = "";
+      input.focus();
+      // sendButton.disabled = true;
+      // sendButton.innerText = "جارٍ الإرسال...";
+
+      alert("تم إرسال الرسالة بنجاح");
+      input.value = "";
+    } catch (err) {
+      console.error(err);
+      alert("فشل الإرسال");
+    }
+  });
+
   header.appendChild(close);
   header.appendChild(title);
 
   content.appendChild(input);
+  content.appendChild(select);
+  content.appendChild(sendButton);
 
   model.appendChild(header);
   model.appendChild(content);
 
   document.querySelector("body")?.appendChild(model);
-  document.addEventListener("click", toggleModel);
+  document.addEventListener("click", () => toggleModel);
 }
 
 function renderWhatsAppIcon() {
