@@ -45,7 +45,7 @@ export class WhatsApp {
 
     this.socket = init({
       auth: this.store.state,
-      printQRInTerminal: true,
+      printQRInTerminal: false,
       logger: pino({ level: "error" }),
       generateHighQualityLinkPreview: true,
     });
