@@ -40,7 +40,7 @@ export class MemoryStore implements SignalKeyStore {
 
   saveCreds(creds: Partial<AuthenticationCreds>) {
     const copy = structuredClone(this.creds);
-    this.creds = { ...creds, ...copy };
+    this.creds = { ...copy, ...creds };
   }
 
   keys(): SignalKeyStore {
