@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules"
+    "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
+    "api": "pnpm --filter @lms-notify/api"
   },
   "keywords": [],
   "author": "Ahmed Ghait <me@ahmedibrahim.dev>",
