@@ -1,24 +1,33 @@
 import express from "express";
 import { WhatsApp } from "@/lib/whatsapp/index.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 
 const wa = new WhatsApp();
 await wa.withStore("memory");
+app.use(cors())
 wa.connect();
 
 async function main() {
+
   app.get("/status", (_, res) => {
     if (wa.connection === "open") {
-      return res.json({ authenticated: true });
+      return res.json({
+        authenticated: true,
+        connection: wa.connection,
+        qr: null,
+      });
     }
 
     res.json({
       authenticated: false,
-      qr: wa.qr,
+      connection: wa.connection,
+      qr: wa.qr ?? null,
     });
   });
+
 
   app.post("/send-bulk", async (req, res) => {
     const { numbers, message } = req.body;
