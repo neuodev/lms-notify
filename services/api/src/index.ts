@@ -7,11 +7,14 @@ app.use(express.json());
 
 const wa = new WhatsApp();
 await wa.withStore("memory");
-app.use(cors())
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 wa.connect();
 
 async function main() {
-
   app.get("/status", (_, res) => {
     if (wa.connection === "open") {
       return res.json({
@@ -28,7 +31,6 @@ async function main() {
     });
   });
 
-
   app.post("/send-bulk", async (req, res) => {
     const { numbers, message } = req.body;
 
@@ -36,10 +38,14 @@ async function main() {
       return res.status(401).json({ error: "WhatsApp not authenticated" });
     }
 
+    console.log({ numbers });
+
     const results = [];
     for (const number of numbers) {
       try {
         const jid = wa.asWhatsAppId(number);
+        console.log({ jid });
+
         await wa.sendMessage(jid, { text: message });
         results.push({ number, status: "sent" });
       } catch (err) {

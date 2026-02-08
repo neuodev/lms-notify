@@ -4,13 +4,13 @@
   "description": "LMS Notify Desktop Application",
   "main": "dist/main/index.js",
   "scripts": {
-    "dev": "pnpm build && pnpm start",
-    "start": "electron-forge start",
+    "dev": "nodemon --watch src --exec pnpm run start",
+    "start": "pnpm run build && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "prepare": "ts-patch install -s",
     "build:main": "tsc --project tsconfig.main.json",
-    "build:inject": "tsc --project tsconfig.inject.json",
+    "build:inject": "node scripts/build-inject.js",
     "build": "pnpm build:main && pnpm build:inject"
   },
   "keywords": [],
@@ -26,13 +26,16 @@
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron/fuses": "^1.0.0",
     "@types/node": "^25.0.9",
+    "electron": "^40.0.0",
+    "esbuild": "^0.27.3",
     "ts-patch": "^3.3.0",
     "typescript": "^5.9.3",
-    "typescript-transform-paths": "^3.5.6",
-    "electron": "^40.0.0"
+    "typescript-transform-paths": "^3.5.6"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "read-excel-file": "^6.0.3",
+    "xlsx": "^0.18.5"
   },
   "packageManager": "pnpm@10.28.0"
 }

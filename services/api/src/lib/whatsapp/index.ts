@@ -137,7 +137,7 @@ export class WhatsApp {
   }
 
   asWhatsAppId(phone: string) {
-    return `2${phone}@s.whatsapp.net`;
+    return `2${phone.startsWith("0") ? phone : `0${phone}`}@s.whatsapp.net`;
   }
 
   async sendContact(
