@@ -1,22 +1,33 @@
 import express from "express";
 import { WhatsApp } from "@/lib/whatsapp/index.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 
 const wa = new WhatsApp();
 await wa.withStore("memory");
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 wa.connect();
 
 async function main() {
   app.get("/status", (_, res) => {
     if (wa.connection === "open") {
-      return res.json({ authenticated: true });
+      return res.json({
+        authenticated: true,
+        connection: wa.connection,
+        qr: null,
+      });
     }
 
     res.json({
       authenticated: false,
-      qr: wa.qr,
+      connection: wa.connection,
+      qr: wa.qr ?? null,
     });
   });
 
@@ -27,10 +38,14 @@ async function main() {
       return res.status(401).json({ error: "WhatsApp not authenticated" });
     }
 
+    console.log({ numbers });
+
     const results = [];
     for (const number of numbers) {
       try {
         const jid = wa.asWhatsAppId(number);
+        console.log({ jid });
+
         await wa.sendMessage(jid, { text: message });
         results.push({ number, status: "sent" });
       } catch (err) {

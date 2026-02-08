@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
-    "api": "pnpm --filter @lms-notify/api"
+    "api": "pnpm --filter @lms-notify/api",
+    "desktop": "pnpm --filter @lms-notify/desktop"
   },
   "keywords": [],
   "author": "Ahmed Ghait <me@ahmedibrahim.dev>",
