@@ -27,6 +27,12 @@ export const LEVELS = [
 ] as const;
 
 export const CSS_STYLES = `
+* {
+  margin:0;
+  padding:0;
+  box-sizing: border-box;
+}
+
 .whatsapp__wrapper {
   position: fixed;
   bottom: 20px;
@@ -55,13 +61,11 @@ export const CSS_STYLES = `
   z-index: 10000;
   top: 0%;
   left: 0%;
-  background: #fff;
+  background: #f7f8fa;
   width: 100vw;
   height: 100vh;
   max-height: 100vh;
-  border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0,0,0,.3);
-  padding: 16px;
   font-family: system-ui, sans-serif;
   overflow-y: auto;
   direction: rtl;
@@ -72,14 +76,18 @@ export const CSS_STYLES = `
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #eee;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  background: #6339f5;
+  color: white;
+  padding: 16px;
 }
 
 .model__title {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
+  display:flex;
+  align-items:center;
+  gap: 12px;
 }
 
 .model__close {
@@ -87,9 +95,8 @@ export const CSS_STYLES = `
   border: none;
   cursor: pointer;
   font-size: 24px;
-  color: #666;
+  color: white;
   padding: 4px 8px;
-  line-height: 1;
 }
 
 .model__close:hover {
@@ -135,7 +142,7 @@ export const CSS_STYLES = `
 .auth-wrapper button {
   margin-top: 10px;
   padding: 10px 20px;
-  background: #25d366;
+  background: #5b3bd1;
   color: white;
   border: none;
   border-radius: 6px;
@@ -145,7 +152,7 @@ export const CSS_STYLES = `
 }
 
 .auth-wrapper button:hover:not(:disabled) {
-  background: #20bd5a;
+  background: #8571ca;
 }
 
 .auth-wrapper button:disabled {
@@ -153,48 +160,45 @@ export const CSS_STYLES = `
   cursor: not-allowed;
 }
 
-/* Filters Section */
 .filters-section {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  padding: 20px 16px;
 }
 
-.filter-group {
-  flex: 1;
-  min-width: 200px;
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAUCAMAAACtdX32AAAAdVBMVEUAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhMdQaAAAAJ3RSTlMAAAECAwQGBwsOFBwkJTg5RUZ4eYCHkJefpaytrsXGy8zW3+Do8vNn0bsyAAAAYElEQVR42tXROwJDQAAA0Ymw1p9kiT+L5P5HVEi3qJn2lcPjtIuzUIJ/rhIGy762N3XaThqMN1ZPALsZPEzG1x8LrFL77DHBnEMxBewz0fJ6LyFHTPL7xhwzWYrJ9z22AqmQBV757MHfAAAAAElFTkSuQmCC) !important;
+  background-position: center left 2% !important;
+  background-repeat: no-repeat !important;
 }
 
-.filter-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
 
 .filter-select {
-  width: 100%;
+  width:100%;
+  min-width: 150px;
+  height: 40px;
   padding: 10px 12px;
-  border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
-  background-color: white;
   cursor: pointer;
   transition: border-color 0.2s;
+  background: #fff;
+  border: 1px solid hsl(200 10% 88%);
+  color: hsl(200 10% 45%);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #25d366;
+  border-color: #8571ca;
 }
 
-.filter-select:hover {
-  border-color: #bbb;
+.filter-select:not(:disabled):hover {
+  border-color: #8571ca;
 }
 
-/* Table Styles */
 .students-table-wrapper {
   max-height: 350px;
   overflow-y: auto;
@@ -216,10 +220,12 @@ export const CSS_STYLES = `
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  padding: 0 16px;
 }
 
 .students-table thead {
-  background-color: #f8f9fa;
+  background-color: #f7f8fa;
+  backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -241,14 +247,30 @@ export const CSS_STYLES = `
 }
 
 .students-table tbody tr:hover {
-  background-color: #f7f7f7;
+  background-color: #e3e9ec;
+}
+
+.students-table tbody tr {
+  background-color: #fff;
 }
 
 .students-table tbody tr.selected {
-  background-color: #e8f5e9;
+  background-color: #e8f1f5;
 }
 
-/* Table cell specific styles */
+tr {
+  display: flex;
+  justify-content: space-around;
+}
+
+td, th{
+  width:100%;
+  text-align: center !important;
+  display: flex;
+  justify-content: center;
+}
+
+
 .select-cell {
   width: 40px;
   text-align: center;
@@ -278,7 +300,7 @@ export const CSS_STYLES = `
 }
 
 .student-avatar.placeholder {
-  background-color: #4caf50;
+  background-color: #5b45ac;
   color: white;
 }
 
@@ -299,13 +321,14 @@ export const CSS_STYLES = `
   text-align: left;
 }
 
-/* Table Controls */
 .table-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
   padding: 8px 0;
+  background: #f7f8fa;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsl(200 10% 88%);
 }
 
 .selected-count {
@@ -331,29 +354,40 @@ export const CSS_STYLES = `
   font-size: 14px;
   color: #333;
   cursor: pointer;
+  margin: 0;
 }
 
 .model textarea {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
+  width: 75%;
+  margin: 0 auto;
+  min-height: 200px;
+  display: block;
+  resize: none;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
   font-size: 14px;
+  font-weight: semibold;
   font-family: inherit;
   margin-bottom: 16px;
+  background: white;
+  border: 1px solid hsl(200 10% 88%);
+  color: hsl(200 15% 15%);
 }
 
 .model textarea:focus {
   outline: none;
-  border-color: #25d366;
+  border-color: #7359d1;
+}
+
+textarea::placeholder {
+  color:hsl(200 10% 45%);
 }
 
 .send-button {
-  width: 100%;
+  width: 20%;
+  margin: 0 auto;
   padding: 14px;
-  background: #25d366;
+  background: #734cf7;
   color: white;
   border: none;
   border-radius: 8px;
@@ -361,14 +395,18 @@ export const CSS_STYLES = `
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .send-button:hover:not(:disabled) {
-  background: #20bd5a;
+  background: #6339f5;
 }
 
 .send-button:disabled {
-  background: #9be5b5;
+  background: #a08aec;
   cursor: not-allowed;
 }
 
@@ -421,42 +459,61 @@ export const CSS_STYLES = `
 .phone-filter-button {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  height: 40px;
   padding: 10px 16px;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
-  color: #333;
+  background: #fff;
+  border: 1px solid hsl(200 10% 88%);
+  color: hsl(200 10% 45%);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
 .phone-filter-button:hover {
-  background: #e9ecef;
-  border-color: #bbb;
+  border-color: hsl(214, 62%, 40%);
 }
 
 .phone-filter-button.active {
-  background: #25d366;
-  color: white;
-  border-color: #25d366;
+  background: hsl(142 30% 90%);
+  color: hsl(142 50% 25%);
+  border-color: hsl(224, 78%, 53%);
 }
 
 .phone-filter-button i {
   font-size: 16px;
 }
 
+.search-input {
+  width:100%;
+  min-width: 200px;
+  max-width: 400px;
+  flex-grow: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid hsl(200 10% 88%);
+  background: #fff;
+  padding: 4px 8px;
+  color: hsl(200 15% 15%);
+}
+
+input:focus {
+ outline: none;
+}
+
+::placeholder {
+  color: hsl(200 10% 45%);
+}
+
 .upload-section {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
   padding: 12px;
-  background: #f8f9fa;
   border-radius: 8px;
-  border: 1px dashed #ddd;
+  border-bottom: 1px solid hsl(200 10% 88%);
 }
 
 .upload-button {
@@ -464,7 +521,8 @@ export const CSS_STYLES = `
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: #198754;
+  height: 40px;
+  background: #4823ce;
   color: white;
   border: none;
   border-radius: 6px;
@@ -474,11 +532,11 @@ export const CSS_STYLES = `
 }
 
 .upload-button:hover:not(:disabled) {
-  background: #157347;
+  background: #5f3be0;
 }
 
 .upload-button:disabled {
-  background: #6c757d;
+  background: #9687cf;
   cursor: not-allowed;
 }
 
@@ -497,14 +555,14 @@ export const CSS_STYLES = `
   font-weight: 500;
 }
 
-.data-source-badge.api-source {
-  background: #0d6efd;
-  color: white;
+.data-source-info {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.data-source-badge.excel-source {
-  background: #198754;
-  color: white;
+.data-source-label{
+  font-weight: bold;
 }
 
 .clear-excel-button {
@@ -512,6 +570,7 @@ export const CSS_STYLES = `
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
+  height: 40px;
   background: #dc3545;
   color: white;
   border: none;
@@ -524,12 +583,10 @@ export const CSS_STYLES = `
   background: #bb2d3b;
 }
 
-/* File input styling */
 .file-input {
   display: none;
 }
 
-/* Template download link */
 .template-link {
   color: #0d6efd;
   text-decoration: none;
@@ -541,7 +598,6 @@ export const CSS_STYLES = `
   text-decoration: underline;
 }
 
-/* Upload progress */
 .upload-progress {
   width: 100%;
   margin-top: 8px;
@@ -594,7 +650,7 @@ export const CSS_STYLES = `
 
 .qr-placeholder i {
   font-size: 48px;
-  color: #25d366;
+  color: #4823ce;
   margin-bottom: 10px;
 }
 
@@ -607,7 +663,7 @@ export const CSS_STYLES = `
 .auth-wrapper button {
   margin-top: 10px;
   padding: 10px 20px;
-  background: #25d366;
+  background: #4823ce;
   color: white;
   border: none;
   border-radius: 6px;
@@ -617,7 +673,7 @@ export const CSS_STYLES = `
 }
 
 .auth-wrapper button:hover:not(:disabled) {
-  background: #20bd5a;
+  background: #7868b3;
 }
 
 .auth-wrapper button:disabled {
@@ -664,7 +720,6 @@ export const CSS_STYLES = `
   color: #25d366;
 }
 
-/* Smooth transitions */
 .model {
   transition: opacity 0.3s ease;
 }
@@ -678,7 +733,6 @@ export const CSS_STYLES = `
   opacity: 1;
 }
 
-/* Better button states */
 .upload-button:disabled,
 .send-button:disabled,
 .verify-button:disabled {
@@ -686,7 +740,6 @@ export const CSS_STYLES = `
   cursor: not-allowed;
 }
 
-/* Excel data indicator */
 .data-source-badge.excel-source {
   animation: pulse 2s infinite;
 }
