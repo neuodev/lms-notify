@@ -33,7 +33,7 @@ export class FiltersComponent {
     ) as HTMLInputElement;
     this.nameInput.type = "text";
     this.nameInput.placeholder = "بحث بالاسم...";
-    this.nameInput.oninput = () => this.handleNameChange.bind(this);
+    this.nameInput.oninput = () => this.handleNameChange();
 
     this.roleSelect = DOMUtils.createElement(
       "select",
@@ -119,7 +119,6 @@ export class FiltersComponent {
   private handleNameChange(): void {
     const value = this.nameInput.value;
     this.filters.name = value || "";
-
     this.notifyChange();
   }
 

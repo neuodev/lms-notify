@@ -4,12 +4,31 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 module.exports = {
   packagerConfig: {
     asar: true,
+    name: "LMS.Notify",
+    executableName: "lms-notify",
+    extraResource: ["./dist/inject"],
+    ignore: [
+      /^\/src/,
+      /^\/\.git/,
+      /^\/node_modules\/\.bin/,
+      /^\/\.vscode/,
+      /^\/scripts/,
+      /^\/\.github/,
+      /^\/tsconfig\./,
+      /^\/nodemon\.json$/,
+      /\\.map$/,
+    ],
   },
   rebuildConfig: {},
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {},
+      config: {
+        name: "LMS.Notify",
+        authors: "Ahmed Ghait",
+        description: "LMS Notify Desktop Application",
+        noMsi: false,
+      },
     },
     {
       name: "@electron-forge/maker-zip",
