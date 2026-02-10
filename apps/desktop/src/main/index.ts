@@ -14,34 +14,25 @@ const createWindow = () => {
 
   win.loadURL("https://nvs.learnovia.com/#/auth/login");
 
+
+
   win.webContents.on("did-finish-load", () => {
     setTimeout(() => {
       try {
         console.log("📦 Loading WhatsApp plugin...");
 
-        // First load xlsx library
-        const xlsxPath = path.join(__dirname, "../dist/inject/xlsx.min.js");
-        if (fs.existsSync(xlsxPath)) {
-          const xlsxContent = fs.readFileSync(xlsxPath, "utf8");
-          win.webContents
-            .executeJavaScript(xlsxContent)
-            .then(() => {
-              console.log("✅ XLSX library loaded");
-              // Now load the main plugin
-              return loadMainPlugin();
-            })
-            .catch((err) => {
-              console.error("❌ Failed to load XLSX:", err);
-              // Still try to load main plugin
-              loadMainPlugin();
-            });
-        } else {
-          console.warn("⚠️ XLSX library not found, Excel import will not work");
-          loadMainPlugin();
+        const basePath = app.isPackaged
+          ? path.join(process.resourcesPath, 'inject')
+          : path.join(__dirname, "../inject");
+
+        const bundlePath = path.join(basePath, "bundle.js");
+        if (!fs.existsSync(bundlePath)) {
+          console.error("❌ Bundle not found at:", bundlePath);
+          return;
         }
 
         function loadMainPlugin() {
-          const content = fs.readFileSync("dist/inject/bundle.js", "utf8");
+          const content = fs.readFileSync(bundlePath, "utf8");
           win.webContents
             .executeJavaScript(content)
             .then(() => {
@@ -51,6 +42,8 @@ const createWindow = () => {
               console.error("❌ Failed to inject plugin:", err);
             });
         }
+
+        loadMainPlugin();
       } catch (err) {
         console.error("❌ Failed to read or inject script:", err);
       }
