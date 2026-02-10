@@ -7,6 +7,8 @@ module.exports = {
     name: "LMS.Notify",
     executableName: "lms-notify",
     extraResource: ["./dist/inject"],
+    appBundleId: "com.lms.notify",
+    appCategoryType: "public.app-category.productivity",
     ignore: [
       /^\/src/,
       /^\/\.git/,
@@ -27,13 +29,21 @@ module.exports = {
         name: "LMS.Notify",
         authors: "Ahmed Ghait",
         description: "LMS Notify Desktop Application",
-        noMsi: false,
+        setupExe: "LMS-Notify-Setup.exe",
+        setupIcon: "./icon.ico",
       },
     },
     {
       name: "@electron-forge/maker-zip",
-      platforms: ["darwin"],
+      platforms: ["darwin", "win32"],
     },
+    // {
+    //   name: "@electron-forge/maker-dmg",
+    //   config: {
+    //     format: "ULFO",
+    //     icon: "./icon.icns",
+    //   },
+    // },
     {
       name: "@electron-forge/maker-deb",
       config: {},

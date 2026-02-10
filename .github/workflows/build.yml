@@ -1,0 +1,168 @@
+name: Build Electron App
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read # Needed for listing artifacts
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [22.21.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.21.1"
+
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: apps/desktop
+
+      - name: Build application
+        run: pnpm run build
+        working-directory: apps/desktop
+
+      - name: Package Windows app
+        run: pnpm run make
+        working-directory: apps/desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            apps/desktop/out/make/squirrel.windows/x64/*.exe
+          retention-days: 1
+
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        node-version: [22.21.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.21.1"
+
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: apps/desktop
+
+      - name: Build application
+        run: pnpm run build
+        working-directory: apps/desktop
+
+      - name: Package macOS app
+        run: pnpm run make
+        working-directory: apps/desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            apps/desktop/out/make/zip/darwin/*/*.zip
+          retention-days: 1
+
+  comment-pr:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos] # This job waits for both builds
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read # Required for listing artifacts
+
+    steps:
+      - name: Comment on PR with direct links
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const runId = context.runId;
+            const prNumber = context.payload.pull_request.number;
+            const commitSha = context.payload.pull_request.head.sha.substring(0, 7);
+
+            // Get artifacts using GitHub API
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner,
+              repo,
+              run_id: runId,
+            });
+
+            let commentBody = `## 🚀 Electron Build Complete! #${prNumber}\n\n`;
+            commentBody += `**✅ Build successful for both platforms!**\n\n`;
+
+            commentBody += `### 📦 Download Builds\n\n`;
+
+            // Find and display both artifacts
+            const windowsArtifact = artifacts.data.artifacts.find(a => a.name.startsWith('windows-build'));
+            const macosArtifact = artifacts.data.artifacts.find(a => a.name.startsWith('macos-build'));
+
+            // Windows section
+            commentBody += `#### 🪟 Windows Build\n`;
+            if (windowsArtifact) {
+              commentBody += `• **Size:** ${Math.round(windowsArtifact.size_in_bytes / 1024 / 1024)} MB\n`;
+              commentBody += `• **Download:** [${windowsArtifact.name}.zip](https://github.com/${owner}/${repo}/actions/runs/${runId}/artifacts/${windowsArtifact.id})\n`;
+              commentBody += `• **Instructions:** Run the installer (LMS-Notify-Setup.exe)\n`;
+            } else {
+              commentBody += `• ❌ Windows artifact not found\n`;
+            }
+            commentBody += `\n`;
+
+            // macOS section
+            commentBody += `#### 🍎 macOS Build\n`;
+            if (macosArtifact) {
+              commentBody += `• **Size:** ${Math.round(macosArtifact.size_in_bytes / 1024 / 1024)} MB\n`;
+              commentBody += `• **Download:** [${macosArtifact.name}.zip](https://github.com/${owner}/${repo}/actions/runs/${runId}/artifacts/${macosArtifact.id})\n`;
+              commentBody += `• **Instructions:** Extract ZIP and run \`LMS Notify.app\`\n`;
+            } else {
+              commentBody += `• ❌ macOS artifact not found\n`;
+            }
+            commentBody += `\n`;
+
+            commentBody += `### 📊 Build Details\n`;
+            commentBody += `• **Commit:** \`${commitSha}\`\n`;
+            commentBody += `• **Workflow Run:** [#${runId}](https://github.com/${owner}/${repo}/actions/runs/${runId})\n`;
+            commentBody += `• **Triggered by:** @${context.payload.sender.login}\n`;
+            commentBody += `• **Build Time:** ${new Date().toLocaleString()}\n\n`;
+
+            commentBody += `---\n`;
+            commentBody += `*Note: Artifacts are automatically deleted after 1 day*\n`;
+
+            // Post comment to PR
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner,
+              repo,
+              body: commentBody
+            });
+
+            console.log('✅ Build results posted to PR');
