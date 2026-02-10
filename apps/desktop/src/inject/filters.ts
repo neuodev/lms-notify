@@ -2,11 +2,7 @@ import { User, FilterState } from "./types";
 import { UserUtils } from "./utils";
 
 export class UserFilter {
-  static filterUsers(
-    users: User[],
-    filters: FilterState,
-    searchTerm: string,
-  ): User[] {
+  static filterUsers(users: User[], filters: FilterState): User[] {
     return users.filter((user) => {
       // Filter by role
       if (filters.roleId !== null) {
@@ -36,11 +32,11 @@ export class UserFilter {
       }
 
       // Filter by search text
-      if (searchTerm.trim()) {
+      if (filters.name.trim()) {
         const fullName = (
           user.fullname || `${user.firstname || ""} ${user.lastname || ""}`
         ).toLowerCase();
-        if (!fullName.includes(searchTerm.toLowerCase())) {
+        if (!fullName.includes(filters.name.toLowerCase())) {
           return false;
         }
       }

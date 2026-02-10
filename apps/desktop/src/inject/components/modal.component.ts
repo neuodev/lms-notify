@@ -14,6 +14,7 @@ export class ModalComponent {
   private users: User[] = [];
   private selectedIds: Set<number> = new Set();
   private filterState: FilterState = {
+    name: "",
     roleId: null,
     level: null,
     hasPhoneOnly: false,
@@ -21,11 +22,9 @@ export class ModalComponent {
 
   private filtersComponent: FiltersComponent | null = null;
   private tableComponent: UserTableComponent | null = null;
-  private searchInput!: HTMLInputElement;
   private selectedCountElement!: HTMLElement;
   private messageTextarea!: HTMLTextAreaElement;
   private sendButton!: HTMLButtonElement;
-  private progressWrapper!: HTMLElement;
   private tableContainer!: HTMLElement;
   private filtersContainer!: HTMLElement;
 
@@ -56,8 +55,8 @@ export class ModalComponent {
     const modal = DOMUtils.createElement("div", "model hidden");
 
     const header = DOMUtils.createElement("div", "model__header");
-    const title = DOMUtils.createElement("h3", "model__title");
-    title.textContent = "إرسال رسالة واتساب";
+    const title = DOMUtils.createElement("div", "model__title");
+    title.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-icon lucide-message-square"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg> <span>إرسال إشعار علي الواتس</span>`;
 
     const closeBtn = DOMUtils.createElement("button", "model__close");
     closeBtn.innerHTML = "&times;";
@@ -126,20 +125,11 @@ export class ModalComponent {
     this.authWrapper.appendChild(this.verifyButton);
     this.authWrapper.appendChild(this.authErrorText);
   }
+
   private createContentWrapper(): void {
     this.contentWrapper = DOMUtils.createElement("div", "");
     this.contentWrapper.classList.add("hidden");
 
-    // Search input
-    this.searchInput = DOMUtils.createElement(
-      "input",
-      "search-input",
-    ) as HTMLInputElement;
-    this.searchInput.type = "text";
-    this.searchInput.placeholder = "بحث بالاسم...";
-    this.searchInput.oninput = () => this.handleSearch();
-
-    // Create containers for filters and table
     this.filtersContainer = DOMUtils.createElement("div");
     this.tableContainer = DOMUtils.createElement("div");
 
@@ -152,7 +142,7 @@ export class ModalComponent {
     // Message area
     this.messageTextarea = DOMUtils.createElement(
       "textarea",
-      "",
+      "textarea",
     ) as HTMLTextAreaElement;
     this.messageTextarea.placeholder = "اكتب الرسالة هنا...";
     this.messageTextarea.rows = 4;
@@ -162,120 +152,21 @@ export class ModalComponent {
       "button",
       "send-button",
     ) as HTMLButtonElement;
-    this.sendButton.textContent = "إرسال الرسالة";
+    this.sendButton.innerHTML = `
+    <i class="fa-solid fa-paper-plane"></i>
+    إرسال الرسالة
+    `;
     this.sendButton.disabled = true;
     this.sendButton.onclick = () => this.handleSend();
 
-    // Progress wrapper
-    this.progressWrapper = DOMUtils.createElement(
-      "div",
-      "progress-wrapper hidden",
-    );
-    this.progressWrapper.innerHTML = `
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: 0%"></div>
-      </div>
-      <div class="progress-text">جاري الإرسال...</div>
-    `;
-
     // Assemble content wrapper
-    this.contentWrapper.appendChild(this.searchInput);
     this.contentWrapper.appendChild(this.filtersContainer);
     this.contentWrapper.appendChild(uploadSection);
     this.contentWrapper.appendChild(tableControls);
     this.contentWrapper.appendChild(this.tableContainer);
     this.contentWrapper.appendChild(this.messageTextarea);
     this.contentWrapper.appendChild(this.sendButton);
-    this.contentWrapper.appendChild(this.progressWrapper);
   }
-
-  // private initializeComponents(): void {
-  //   // Search input
-  //   this.searchInput = DOMUtils.createElement(
-  //     "input",
-  //     "search-input",
-  //   ) as HTMLInputElement;
-  //   this.searchInput.type = "text";
-  //   this.searchInput.placeholder = "بحث بالاسم...";
-  //   this.searchInput.oninput = () => this.handleSearch();
-
-  //   // Table controls
-  //   const tableControls = DOMUtils.createElement("div", "table-controls");
-
-  //   const selectAllWrapper = DOMUtils.createElement(
-  //     "div",
-  //     "select-all-checkbox",
-  //   );
-  //   const selectAllCheckbox = DOMUtils.createElement(
-  //     "input",
-  //     "",
-  //   ) as HTMLInputElement;
-  //   selectAllCheckbox.type = "checkbox";
-  //   selectAllCheckbox.id = "select-all";
-
-  //   const selectAllLabel = DOMUtils.createElement("label", "select-all-label");
-  //   selectAllLabel.htmlFor = "select-all";
-  //   selectAllLabel.textContent = "تحديد الكل";
-
-  //   selectAllCheckbox.onchange = () =>
-  //     this.handleSelectAll(selectAllCheckbox.checked);
-  //   selectAllWrapper.appendChild(selectAllCheckbox);
-  //   selectAllWrapper.appendChild(selectAllLabel);
-
-  //   this.selectedCountElement = DOMUtils.createElement("div", "selected-count");
-  //   this.selectedCountElement.textContent = "لم يتم تحديد أي مستخدم";
-
-  //   tableControls.appendChild(selectAllWrapper);
-  //   tableControls.appendChild(this.selectedCountElement);
-
-  //   // Create containers for filters and table
-  //   this.filtersContainer = DOMUtils.createElement("div");
-  //   const uploadSection = this.createUploadSection();
-  //   this.tableContainer = DOMUtils.createElement("div");
-
-  //   // Message area
-  //   this.messageTextarea = DOMUtils.createElement(
-  //     "textarea",
-  //     "",
-  //   ) as HTMLTextAreaElement;
-  //   this.messageTextarea.placeholder = "اكتب الرسالة هنا...";
-  //   this.messageTextarea.rows = 4;
-
-  //   // Send button
-  //   this.sendButton = DOMUtils.createElement(
-  //     "button",
-  //     "send-button",
-  //   ) as HTMLButtonElement;
-  //   this.sendButton.textContent = "إرسال الرسالة";
-  //   this.sendButton.disabled = true;
-  //   this.sendButton.onclick = () => this.handleSend();
-
-  //   // Progress wrapper
-  //   this.progressWrapper = DOMUtils.createElement(
-  //     "div",
-  //     "progress-wrapper hidden",
-  //   );
-  //   this.progressWrapper.innerHTML = `
-  //     <div class="progress-bar">
-  //       <div class="progress-fill" style="width: 0%"></div>
-  //     </div>
-  //     <div class="progress-text">جاري الإرسال...</div>
-  //   `;
-
-  //   // Assemble modal
-  //   const contentWrapper = DOMUtils.createElement("div", "");
-  //   contentWrapper.appendChild(this.searchInput);
-  //   contentWrapper.appendChild(this.filtersContainer);
-  //   contentWrapper.appendChild(uploadSection);
-  //   contentWrapper.appendChild(tableControls);
-  //   contentWrapper.appendChild(this.tableContainer);
-  //   contentWrapper.appendChild(this.messageTextarea);
-  //   contentWrapper.appendChild(this.sendButton);
-  //   contentWrapper.appendChild(this.progressWrapper);
-
-  //   this.modal.appendChild(contentWrapper);
-  //   document.body.appendChild(this.modal);
-  // }
 
   private createTableControls(): HTMLElement {
     const tableControls = DOMUtils.createElement("div", "table-controls");
@@ -421,7 +312,6 @@ export class ModalComponent {
   private initializeTableAndFilters(): void {
     this.filtersContainer.innerHTML = "";
     this.tableContainer.innerHTML = "";
-    // Create filters
     this.filtersComponent = new FiltersComponent(
       this.filtersContainer,
       this.filterState,
@@ -431,7 +321,6 @@ export class ModalComponent {
       },
     );
 
-    // Create table
     this.tableComponent = new UserTableComponent(
       this.tableContainer,
       this.selectedIds,
@@ -447,28 +336,16 @@ export class ModalComponent {
   private renderTable(): void {
     const users = this.getUsers();
 
-    const filteredUsers = UserFilter.filterUsers(
-      users,
-      this.filterState,
-      this.searchInput.value,
-    );
+    const filteredUsers = UserFilter.filterUsers(users, this.filterState);
 
     this.tableComponent?.render(filteredUsers, this.filterState.hasPhoneOnly);
     this.tableComponent?.updateSelection(this.selectedIds);
     this.updateSelectedCount();
   }
 
-  private handleSearch(): void {
-    this.renderTable();
-  }
-
   private handleSelectAll(isChecked: boolean): void {
     const users = this.getUsers();
-    const filteredUsers = UserFilter.filterUsers(
-      users,
-      this.filterState,
-      this.searchInput.value,
-    );
+    const filteredUsers = UserFilter.filterUsers(users, this.filterState);
 
     if (isChecked) {
       filteredUsers.forEach((user) => this.selectedIds.add(user.id));
@@ -536,17 +413,6 @@ export class ModalComponent {
 
     this.sendButton.disabled = true;
     this.sendButton.textContent = "جاري الإرسال...";
-    this.progressWrapper.classList.remove("hidden");
-
-    const progressFill = this.progressWrapper.querySelector(
-      ".progress-fill",
-    ) as HTMLElement;
-    const progressText = this.progressWrapper.querySelector(
-      ".progress-text",
-    ) as HTMLElement;
-
-    progressFill.style.width = "0%";
-    progressText.textContent = "جاري الإرسال...";
 
     try {
       const result = await apiService.sendBulkMessages(message, numbers);
@@ -559,21 +425,12 @@ export class ModalComponent {
         (r) => r.status === "failed",
       ).length;
 
-      // Update progress display
-      progressFill.style.width = "100%";
-
-      if (sentCount > 0 && failedCount === 0) {
-        progressText.textContent = `تم إرسال ${sentCount} رسالة بنجاح!`;
-      } else if (sentCount > 0 && failedCount > 0) {
-        progressText.textContent = `تم إرسال ${sentCount} رسالة بنجاح وفشل ${failedCount} رسالة`;
-      } else {
-        progressText.textContent = `فشل إرسال جميع الرسائل (${failedCount})`;
-      }
-
       setTimeout(() => {
-        this.progressWrapper.classList.add("hidden");
         this.sendButton.disabled = false;
-        this.sendButton.textContent = "إرسال الرسالة";
+        this.sendButton.innerHTML = `
+            <i class="fa-solid fa-paper-plane"></i>
+    إرسال الرسالة
+    `;
         this.messageTextarea.value = "";
 
         // Show appropriate alert based on results
@@ -591,8 +448,10 @@ export class ModalComponent {
       console.error("❌ Send error:", err);
       alert("فشل الإرسال. حاول مرة أخرى.");
       this.sendButton.disabled = false;
-      this.sendButton.textContent = "إرسال الرسالة";
-      this.progressWrapper.classList.add("hidden");
+      this.sendButton.textContent = `
+          <i class="fa-solid fa-paper-plane"></i>
+    إرسال الرسالة
+      `;
     }
   }
 
@@ -607,11 +466,7 @@ export class ModalComponent {
   private updateSelectedCount(): void {
     const users = this.getUsers();
     const count = this.selectedIds.size;
-    const filteredUsers = UserFilter.filterUsers(
-      users,
-      this.filterState,
-      this.searchInput.value,
-    );
+    const filteredUsers = UserFilter.filterUsers(users, this.filterState);
 
     const totalWithPhone = UserFilter.getTotalUsersWithPhone(users);
 
@@ -620,29 +475,27 @@ export class ModalComponent {
     if (this.filterState.hasPhoneOnly) {
       countText += ` (عرض ${filteredUsers.length} مستخدم لديهم أرقام هواتف من أصل ${totalWithPhone} مستخدم لديهم أرقام)`;
     } else {
-      countText += ` (عرض ${filteredUsers.length} مستخدم من أصل ${users.length})`;
+      countText += ` (عرض ${filteredUsers.length} مستخدم من أصل ${users.length} مستخدم)`;
     }
 
     this.selectedCountElement.textContent = countText;
     this.sendButton.disabled = count === 0;
   }
 
-  private showProgress(): void {
-    this.sendButton.disabled = true;
-    this.sendButton.textContent = "جاري الإرسال...";
-    this.progressWrapper.classList.remove("hidden");
-  }
-
-  private hideProgress(): void {
-    this.sendButton.disabled = false;
-    this.sendButton.textContent = "إرسال الرسالة";
-    this.progressWrapper.classList.add("hidden");
-  }
-
   private createUploadSection(): HTMLElement {
     console.log("Creating upload section");
 
     const uploadSection = DOMUtils.createElement("div", "upload-section");
+
+    // Data source info
+    this.dataSourceInfo = DOMUtils.createElement("div", "data-source-info");
+    this.dataSourceInfo.innerHTML = `
+      <i class="fa-solid fa-users"></i>
+      مصدر المعلومات: 
+      <span class="data-source-label">
+      بيانات النظام
+      </span>
+  `;
 
     // Upload button
     this.uploadButton = DOMUtils.createElement(
@@ -665,30 +518,21 @@ export class ModalComponent {
     this.fileInput.style.display = "none";
     this.fileInput.onchange = (e) => this.handleFileUpload(e);
 
-    // Data source info
-    this.dataSourceInfo = DOMUtils.createElement("div", "data-source-info");
-    this.dataSourceInfo.innerHTML = `
-    <span class="data-source-badge api-source">
-      <i class="fas fa-database"></i>
-      بيانات النظام
-    </span>
-  `;
-
     // Clear Excel data button
     this.clearExcelButton = DOMUtils.createElement(
       "button",
       "clear-excel-button",
     ) as HTMLButtonElement;
     this.clearExcelButton.innerHTML = `
-    <i class="fas fa-times"></i>
-    مسح بيانات Excel
+    <i class="fas fa-database"></i>
+    العودة إلى بيانات النظام
   `;
     this.clearExcelButton.style.display = "none";
     this.clearExcelButton.onclick = () => this.clearExcelData();
 
+    uploadSection.appendChild(this.dataSourceInfo);
     uploadSection.appendChild(this.uploadButton);
     uploadSection.appendChild(this.fileInput);
-    uploadSection.appendChild(this.dataSourceInfo);
     uploadSection.appendChild(this.clearExcelButton);
 
     return uploadSection;
@@ -721,9 +565,10 @@ export class ModalComponent {
 
       // Update UI
       this.dataSourceInfo.innerHTML = `
-      <span class="data-source-badge excel-source">
-        <i class="fas fa-file-excel"></i>
-        بيانات من: ${result.fileName} (${result.count} طالب)
+      <i class="fa-solid fa-users"></i>
+      مصدر المعلومات: 
+      <span class="data-source-label">
+      Excel
       </span>
     `;
 
@@ -741,13 +586,11 @@ export class ModalComponent {
 
       // Reset filter state
       this.filterState = {
+        name: "",
         roleId: null,
         level: null,
         hasPhoneOnly: false,
       };
-
-      // Clear search input
-      this.searchInput.value = "";
 
       // Clear selections
       this.selectedIds.clear();
@@ -757,7 +600,6 @@ export class ModalComponent {
         const filteredUsers = UserFilter.filterUsers(
           this.excelUsers,
           this.filterState,
-          "",
         );
         this.tableComponent.render(filteredUsers, false);
         this.tableComponent.updateSelection(this.selectedIds);
@@ -792,10 +634,11 @@ export class ModalComponent {
 
     // Reset UI
     this.dataSourceInfo.innerHTML = `
-    <span class="data-source-badge api-source">
-      <i class="fas fa-database"></i>
+      <i class="fa-solid fa-users"></i>
+      مصدر المعلومات: 
+      <span class="data-source-label">
       بيانات النظام
-    </span>
+      </span>
   `;
 
     // Hide clear button
@@ -812,13 +655,11 @@ export class ModalComponent {
 
     // Reset filter state
     this.filterState = {
+      name: "",
       roleId: null,
       level: null,
       hasPhoneOnly: false,
     };
-
-    // Clear search input
-    this.searchInput.value = "";
 
     // Clear selections
     this.selectedIds.clear();
@@ -828,7 +669,6 @@ export class ModalComponent {
       const filteredUsers = UserFilter.filterUsers(
         this.users,
         this.filterState,
-        "",
       );
       this.tableComponent?.render(filteredUsers, false);
       this.tableComponent?.updateSelection(this.selectedIds);

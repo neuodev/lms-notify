@@ -38,6 +38,7 @@ export interface ExcelParseResult {
 }
 
 export interface FilterState {
+  name: string;
   roleId: number | null;
   level: string | null;
   hasPhoneOnly: boolean;
