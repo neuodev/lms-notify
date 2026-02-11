@@ -129,8 +129,10 @@ app.post("/sessions/:sessionId/send-bulk", async (req, res) => {
   for (const number of numbers) {
     try {
       const jid = session.waInstance.asWhatsAppId(number);
+      await session.waInstance.sendPresence(jid, "composing");
       await session.waInstance.sendMessage(jid, { text: message });
-      await new Promise((resolve) => setTimeout(resolve, 500)); // delay between messages to avoid rate limits
+      const delay = Math.floor(Math.random() * 1500 + 1000);
+      await new Promise((resolve) => setTimeout(resolve, delay));
       results.push({ number, status: "sent", timestamp: Date.now() });
     } catch (err) {
       results.push({

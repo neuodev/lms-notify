@@ -4,6 +4,7 @@ import init, {
   ConnectionState,
   DisconnectReason,
   MiscMessageGenerationOptions,
+  WAPresence,
 } from "baileys";
 import {
   initFileStore,
@@ -29,13 +30,18 @@ export class WhatsApp {
   _listenersAttached = false;
   events: EventEmitter = new EventEmitter();
 
-  async withStore(type: "memory" | "file", sessionId?: string): Promise<WhatsApp> {
+  async withStore(
+    type: "memory" | "file",
+    sessionId?: string,
+  ): Promise<WhatsApp> {
     if (type === "memory") {
       this.store = initMemoryStore();
       return this;
     }
 
-    const folder = sessionId ? `sessions/${sessionId}/__whatsapp__` : `__whatsapp__`;
+    const folder = sessionId
+      ? `sessions/${sessionId}/__whatsapp__`
+      : `__whatsapp__`;
     this.store = await initFileStore(folder);
     return this;
   }
@@ -56,13 +62,18 @@ export class WhatsApp {
 
     if (update.qr) {
       this.qr = update.qr;
-      this.events.emit('qr', update.qr);
-      console.log(await qr.toString(update.qr, { type: "terminal", small: true }));
+      this.events.emit("qr", update.qr);
+      console.log(
+        await qr.toString(update.qr, { type: "terminal", small: true }),
+      );
     }
 
-    this.events.emit('connection.update', update);
+    this.events.emit("connection.update", update);
 
-    if (update.connection === "close" && shouldReconnect(update.lastDisconnect?.error)) {
+    if (
+      update.connection === "close" &&
+      shouldReconnect(update.lastDisconnect?.error)
+    ) {
       return await this.connectAsync();
     }
   }
@@ -80,7 +91,6 @@ export class WhatsApp {
       generateHighQualityLinkPreview: true,
     });
   }
-
 
   async connectAsync(): Promise<WhatsApp> {
     this.init();
@@ -118,20 +128,27 @@ export class WhatsApp {
     return await this.socket.sendMessage(id, content, options);
   }
 
+  async sendPresence(id: string, presence: WAPresence = "composing") {
+    if (!this.socket) throw new Error("Socket is not initialized");
+    if (this.connection !== "open")
+      throw new Error(`invalid connection state: ${this.connection}`);
+    return await this.socket.sendPresenceUpdate(presence, id);
+  }
+
   asWhatsAppId(phone: string) {
     return `2${phone.startsWith("0") ? phone : `0${phone}`}@s.whatsapp.net`;
   }
 
   public isConnected(): boolean {
-    return this.connection === 'open';
+    return this.connection === "open";
   }
 
   async disconnect(): Promise<void> {
     if (this.socket) {
-      this.socket.ev.removeAllListeners('connection.update');
-      this.socket.ev.removeAllListeners('creds.update');
+      this.socket.ev.removeAllListeners("connection.update");
+      this.socket.ev.removeAllListeners("creds.update");
       await this.socket.end(undefined);
-      this.connection = 'close';
+      this.connection = "close";
       this._listenersAttached = false;
     }
   }
