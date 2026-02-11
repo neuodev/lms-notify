@@ -81,6 +81,7 @@ app.get("/sessions/:sessionId/status", (req, res) => {
 
   const wa = session.waInstance;
   const status = {
+    success: true,
     sessionId,
     authenticated: wa.connection === "open",
     connection: wa.connection,

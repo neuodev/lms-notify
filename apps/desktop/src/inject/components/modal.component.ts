@@ -11,6 +11,9 @@ export class ModalComponent {
   private isVisible: boolean = false;
   private onClose: () => void;
 
+  private sessionId: string | null = null;
+  private readonly STORAGE_KEY = "whatsappSessionId";
+
   private users: User[] = [];
   private selectedIds: Set<number> = new Set();
   private filterState: FilterState = {
@@ -200,36 +203,7 @@ export class ModalComponent {
     return tableControls;
   }
 
-  private async checkWhatsAppStatus(): Promise<void> {
-    try {
-      // Reset UI
-      this.authStatusText.textContent = "جاري التحقق من حالة WhatsApp...";
-      this.authStatusText.style.display = "block";
-      this.qrPlaceholder.style.display = "none";
-      this.qrImage.style.display = "none";
-      this.verifyButton.style.display = "none";
-      this.authErrorText.style.display = "none";
-
-      const status = await apiService.checkWhatsAppStatus();
-      console.log("WhatsApp Status:", status);
-
-      if (status.authenticated) {
-        console.log("Already authenticated");
-        this.showMainContent();
-      } else {
-        console.log("Not authenticated");
-        this.showQRCode(status.qr);
-      }
-    } catch (error) {
-      console.error("Error checking WhatsApp status:", error);
-      this.authErrorText.textContent =
-        "فشل الاتصال بالخادم. تأكد من تشغيل خادم WhatsApp.";
-      this.authErrorText.style.display = "block";
-      this.authStatusText.style.display = "none";
-    }
-  }
-
-  private showQRCode(qrCode: string | undefined): void {
+  private showQRCode(qrCode: string | null | undefined): void {
     if (!qrCode) {
       this.authErrorText.textContent =
         "فشل في الحصول على رمز QR. حاول مرة أخرى.";
@@ -244,21 +218,25 @@ export class ModalComponent {
     this.qrPlaceholder.style.display = "flex";
     this.qrPlaceholder.innerHTML = ""; // Clear placeholder
 
-    // Create QR code image
+    // Create QR code image (using external service)
     const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrCode)}`;
     this.qrImage.src = qrLink;
     this.qrImage.style.display = "block";
-
     this.qrPlaceholder.appendChild(this.qrImage);
 
     // Show verify button
     this.verifyButton.style.display = "inline-block";
     this.verifyButton.disabled = false;
     this.verifyButton.textContent = "إتمام المسح والتحقق";
+    this.verifyButton.onclick = () => this.verifyAuthentication();
   }
 
   private async verifyAuthentication(): Promise<void> {
-    console.log("Verifying authentication...");
+    if (!this.sessionId) {
+      console.error("No session ID to verify");
+      return;
+    }
+
     this.verifyButton.disabled = true;
     this.verifyButton.textContent = "جاري التحقق...";
     this.authErrorText.style.display = "none";
@@ -271,8 +249,7 @@ export class ModalComponent {
       console.log(`Checking auth attempt ${attempt}`);
 
       try {
-        const status = await apiService.checkWhatsAppStatus();
-
+        const status = await apiService.getSessionStatus(this.sessionId!);
         if (status.authenticated) {
           clearInterval(interval);
           console.log("Authentication successful");
@@ -415,7 +392,11 @@ export class ModalComponent {
     this.sendButton.textContent = "جاري الإرسال...";
 
     try {
-      const result = await apiService.sendBulkMessages(message, numbers);
+      const result = await apiService.sendBulkMessages(
+        this.sessionId!, // we know it's valid because we checked authenticated
+        message,
+        numbers,
+      );
 
       // Calculate sent and failed counts from the results array
       const sentCount = result.results.filter(
@@ -444,14 +425,16 @@ export class ModalComponent {
           alert("لم يتم إرسال أي رسائل بنجاح");
         }
       }, 2000);
-    } catch (err) {
-      console.error("❌ Send error:", err);
-      alert("فشل الإرسال. حاول مرة أخرى.");
-      this.sendButton.disabled = false;
-      this.sendButton.textContent = `
-          <i class="fa-solid fa-paper-plane"></i>
-    إرسال الرسالة
-      `;
+    } catch (err: any) {
+      // If session became invalid, clear it and prompt to reconnect
+      if (err.status === 401 || err.status === 404) {
+        localStorage.removeItem(this.STORAGE_KEY);
+        this.sessionId = null;
+        alert("انتهت صلاحية الجلسة. يرجى إعادة فتح النافذة.");
+        this.close();
+      } else {
+        alert("فشل الإرسال. حاول مرة أخرى.");
+      }
     }
   }
 
@@ -690,10 +673,11 @@ export class ModalComponent {
     this.modal.classList.remove("hidden");
     this.isVisible = true;
 
+    // Reset UI to auth wrapper
     this.authWrapper.classList.remove("hidden");
     this.contentWrapper.classList.add("hidden");
 
-    // Show loading state
+    // Reset UI texts
     this.authStatusText.textContent = "جاري الاتصال بخادم WhatsApp...";
     this.authStatusText.style.display = "block";
     this.qrPlaceholder.style.display = "none";
@@ -701,7 +685,63 @@ export class ModalComponent {
     this.verifyButton.style.display = "none";
     this.authErrorText.style.display = "none";
 
-    this.checkWhatsAppStatus();
+    // Get stored sessionId from localStorage
+    const storedId = localStorage.getItem(this.STORAGE_KEY);
+    if (storedId) {
+      this.sessionId = storedId;
+      this.checkExistingSession();
+    } else {
+      this.createNewSession();
+    }
+  }
+
+  private async checkExistingSession(): Promise<void> {
+    if (!this.sessionId) return;
+
+    try {
+      const status = await apiService.getSessionStatus(this.sessionId);
+      console.log("Session status:", status);
+
+      if (status.authenticated) {
+        this.showMainContent();
+      } else {
+        // Session exists but not authenticated → show QR
+        this.showQRCode(status.qr);
+      }
+    } catch (error: any) {
+      if (error.status === 404) {
+        // Session expired or server restarted
+        console.warn("Stored session invalid, creating new one...");
+        localStorage.removeItem(this.STORAGE_KEY);
+        this.sessionId = null;
+        this.createNewSession();
+      } else {
+        // Network error or other
+        this.authErrorText.textContent =
+          "فشل الاتصال بالخادم. تأكد من تشغيل خادم WhatsApp.";
+        this.authErrorText.style.display = "block";
+        this.authStatusText.style.display = "none";
+      }
+    }
+  }
+
+  private async createNewSession(): Promise<void> {
+    try {
+      this.authStatusText.textContent = "جاري إنشاء جلسة جديدة...";
+      const data = await apiService.createSession();
+      this.sessionId = data.sessionId;
+      localStorage.setItem(this.STORAGE_KEY, data.sessionId);
+      console.log("New session created:", data.sessionId);
+
+      // Immediately check status (will contain QR)
+      await this.checkExistingSession(); // will handle QR display
+    } catch (error) {
+      console.error("Failed to create session:", error);
+      this.authErrorText.textContent =
+        "فشل في إنشاء جلسة WhatsApp. حاول مرة أخرى.";
+      this.authErrorText.style.display = "block";
+      this.authStatusText.style.display = "none";
+    }
   }
 
   close(): void {
