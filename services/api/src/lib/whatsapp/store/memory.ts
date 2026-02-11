@@ -50,6 +50,10 @@ export class MemoryStore implements SignalKeyStore {
       clear: this.clear.bind(this),
     };
   }
+
+  async cleanup(): Promise<void> {
+    await this.clear();
+  }
 }
 
 export function initMemoryStore(): InitializedStore {
