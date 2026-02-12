@@ -1,5 +1,5 @@
 import { User } from "./types";
-import { API_BASE_URL, WHATSAPP_API_URL } from "./constants";
+import { API_BASE_URL, PROD_WHATSAPP_API_URL } from "./constants";
 
 export type WhatsAppStatus = {
   authenticated: boolean;
@@ -109,7 +109,7 @@ class ApiService {
   }
 
   async createSession(): Promise<CreateSessionResponse> {
-    const res = await fetch(`${WHATSAPP_API_URL}/sessions`, {
+    const res = await fetch(`${PROD_WHATSAPP_API_URL}/sessions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}), // storeType is now server‑controlled
@@ -124,7 +124,9 @@ class ApiService {
   }
 
   async getSessionStatus(sessionId: string): Promise<SessionStatusResponse> {
-    const res = await fetch(`${WHATSAPP_API_URL}/sessions/${sessionId}/status`);
+    const res = await fetch(
+      `${PROD_WHATSAPP_API_URL}/sessions/${sessionId}/status`,
+    );
 
     if (res.status === 404) {
       // Session not found – throw a special error that the component can catch
@@ -147,7 +149,7 @@ class ApiService {
     numbers: string[],
   ): Promise<SendBulkResponse> {
     const res = await fetch(
-      `${WHATSAPP_API_URL}/sessions/${sessionId}/send-bulk`,
+      `${PROD_WHATSAPP_API_URL}/sessions/${sessionId}/send-bulk`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,7 +166,7 @@ class ApiService {
   }
 
   async deleteSession(sessionId: string): Promise<DeleteSessionResponse> {
-    const res = await fetch(`${WHATSAPP_API_URL}/sessions/${sessionId}`, {
+    const res = await fetch(`${PROD_WHATSAPP_API_URL}/sessions/${sessionId}`, {
       method: "DELETE",
     });
 

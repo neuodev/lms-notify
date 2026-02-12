@@ -89,6 +89,12 @@ export class WhatsApp {
       printQRInTerminal: false,
       logger: pino({ level: "error" }),
       generateHighQualityLinkPreview: true,
+      syncFullHistory: false,
+      // 👇 mimics a real Windows / Edge browser
+      browser: ["Windows", "Edge", "20.0.04"],
+      connectTimeoutMs: 60000,
+      keepAliveIntervalMs: 25000,
+      qrTimeout: 40000,
     });
   }
 
