@@ -4,6 +4,7 @@ import init, {
   ConnectionState,
   DisconnectReason,
   MiscMessageGenerationOptions,
+  WAPresence,
 } from "baileys";
 import {
   initFileStore,
@@ -13,6 +14,7 @@ import {
 import { isBoom } from "@hapi/boom";
 import { pino } from "pino";
 import qr from "qrcode";
+import EventEmitter from "events";
 
 function shouldReconnect(error: unknown): boolean {
   return (
@@ -25,16 +27,55 @@ export class WhatsApp {
   connection: ConnectionState["connection"] = "close";
   store: InitializedStore | null = null;
   qr: string | null = null;
+  _listenersAttached = false;
+  events: EventEmitter = new EventEmitter();
 
-  async withStore(type: "memory" | "file"): Promise<WhatsApp> {
+  async withStore(
+    type: "memory" | "file",
+    sessionId?: string,
+  ): Promise<WhatsApp> {
     if (type === "memory") {
       this.store = initMemoryStore();
       return this;
     }
 
-    const folder = `__whatsapp__`;
+    const folder = sessionId
+      ? `sessions/${sessionId}/__whatsapp__`
+      : `__whatsapp__`;
     this.store = await initFileStore(folder);
     return this;
+  }
+
+  private setupEventListeners() {
+    if (this._listenersAttached) return; // prevent duplicates
+    if (!this.socket) throw new Error("Socket not initialized");
+    if (!this.store) throw new Error("Store not initialized");
+
+    this.socket.ev.on("connection.update", this.handleSocketUpdates.bind(this));
+    this.socket.ev.on("creds.update", this.store.saveCreds);
+    this._listenersAttached = true;
+  }
+
+  private async handleSocketUpdates(update: any) {
+    console.log(update);
+    if (update.connection) this.connection = update.connection || "close";
+
+    if (update.qr) {
+      this.qr = update.qr;
+      this.events.emit("qr", update.qr);
+      console.log(
+        await qr.toString(update.qr, { type: "terminal", small: true }),
+      );
+    }
+
+    this.events.emit("connection.update", update);
+
+    if (
+      update.connection === "close" &&
+      shouldReconnect(update.lastDisconnect?.error)
+    ) {
+      return await this.connectAsync();
+    }
   }
 
   private init() {
@@ -48,69 +89,26 @@ export class WhatsApp {
       printQRInTerminal: false,
       logger: pino({ level: "error" }),
       generateHighQualityLinkPreview: true,
+      syncFullHistory: false,
+      // 👇 mimics a real Windows / Edge browser
+      browser: ["Windows", "Edge", "20.0.04"],
+      connectTimeoutMs: 60000,
+      keepAliveIntervalMs: 25000,
+      qrTimeout: 40000,
     });
-  }
-
-  connect(): WhatsApp {
-    this.init();
-    this.onConnectionUpdate();
-    this.onCredsUpdate();
-    return this;
   }
 
   async connectAsync(): Promise<WhatsApp> {
     this.init();
     this.onCredsUpdate();
 
+    this.setupEventListeners();
+
     return await new Promise<WhatsApp>((resolve, reject) => {
       if (!this.socket) return reject(new Error("Socket is not initialized"));
+      if (!this.store) return reject(new Error("Store is not initialized"));
 
-      this.socket.ev.on("connection.update", async (update) => {
-        if (update.connection) this.connection = update.connection;
-
-        if (update.qr) {
-          this.qr = update.qr;
-          console.log(
-            await qr.toString(update.qr, {
-              type: "terminal",
-              small: true,
-            }),
-          );
-        }
-
-        if (
-          update.connection === "close" &&
-          shouldReconnect(update.lastDisconnect?.error)
-        )
-          return this.connectAsync();
-
-        if (update.connection === "open") return resolve(this);
-      });
-    });
-  }
-
-  private onConnectionUpdate() {
-    if (!this.socket) throw new Error("Socket is not initialized");
-
-    this.socket.ev.on("connection.update", async (update) => {
-      console.log(update);
-      if (update.connection) this.connection = update.connection || "close";
-
-      if (update.qr) {
-        this.qr = update.qr;
-        console.log(
-          await qr.toString(update.qr, {
-            type: "terminal",
-            small: true,
-          }),
-        );
-      }
-
-      if (
-        update.connection === "close" &&
-        shouldReconnect(update.lastDisconnect?.error)
-      )
-        return this.connect();
+      return resolve(this);
     });
   }
 
@@ -136,8 +134,29 @@ export class WhatsApp {
     return await this.socket.sendMessage(id, content, options);
   }
 
+  async sendPresence(id: string, presence: WAPresence = "composing") {
+    if (!this.socket) throw new Error("Socket is not initialized");
+    if (this.connection !== "open")
+      throw new Error(`invalid connection state: ${this.connection}`);
+    return await this.socket.sendPresenceUpdate(presence, id);
+  }
+
   asWhatsAppId(phone: string) {
     return `2${phone.startsWith("0") ? phone : `0${phone}`}@s.whatsapp.net`;
+  }
+
+  public isConnected(): boolean {
+    return this.connection === "open";
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.socket) {
+      this.socket.ev.removeAllListeners("connection.update");
+      this.socket.ev.removeAllListeners("creds.update");
+      await this.socket.end(undefined);
+      this.connection = "close";
+      this._listenersAttached = false;
+    }
   }
 
   async sendContact(

@@ -754,3 +754,4 @@ input:focus {
 
 export const API_BASE_URL = "https://nvsapi.learnovia.com/api";
 export const WHATSAPP_API_URL = "http://localhost:3000";
+export const PROD_WHATSAPP_API_URL = "https://api.kodhub.dev";

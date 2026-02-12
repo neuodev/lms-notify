@@ -1,4 +1,4 @@
-import { User, UserRole } from "./types";
+import { User } from "./types";
 
 export class UserUtils {
   static resolvePhone(user: User): string | null {
