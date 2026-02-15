@@ -26,7 +26,7 @@ esbuild
       ".ts": "ts",
     },
     tsconfig: "tsconfig.inject.json",
-
+    external: ["electron"],
     platform: "browser",
   })
   .then(() => {

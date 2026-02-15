@@ -59,6 +59,10 @@ class ApiService {
   }
 
   async fetchAllUsers(): Promise<User[]> {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
     let page = 1;
     const allUsers: User[] = [];
 
@@ -76,7 +80,7 @@ class ApiService {
           {
             headers: {
               accept: "application/json",
-              authorization: `Bearer ${this.token}`,
+              authorization: `Bearer ${token}`,
             },
             credentials: "include",
           },

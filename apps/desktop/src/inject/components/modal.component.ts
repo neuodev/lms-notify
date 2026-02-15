@@ -82,7 +82,44 @@ export class ModalComponent {
     // Add both wrappers to modal
     this.modal.appendChild(this.authWrapper);
     this.modal.appendChild(this.contentWrapper);
+    const supportButton = this.createSupportButton();
+    this.modal.appendChild(supportButton);
     document.body.appendChild(this.modal);
+  }
+
+  private openWhatsAppSupport(): void {
+    const url = "https://wa.me/201110971617";
+
+    window.open(url, "_blank");
+  }
+
+  private createSupportButton(): HTMLElement {
+    const button = DOMUtils.createElement("button", "support-button");
+    button.innerHTML = `<i class="fab fa-whatsapp"></i> الدعم`;
+
+    // Style the button
+    button.style.position = "absolute";
+    button.style.bottom = "20px";
+    button.style.left = "20px";
+    button.style.backgroundColor = "#4823ce";
+    button.style.color = "white";
+    button.style.padding = "8px 16px";
+    button.style.borderRadius = "20px";
+    button.style.border = "none";
+    button.style.cursor = "pointer";
+    button.style.fontSize = "16px";
+    button.style.display = "flex";
+    button.style.alignItems = "center";
+    button.style.gap = "5px";
+    button.style.zIndex = "10";
+
+    // Attach click handler
+    button.onclick = (e) => {
+      e.preventDefault(); // Prevent any default action (like form submission)
+      this.openWhatsAppSupport();
+    };
+
+    return button;
   }
 
   private createAuthWrapper(): void {
