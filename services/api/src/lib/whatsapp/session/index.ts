@@ -115,6 +115,7 @@ export class SessionManager extends EventEmitter {
     if (!session) return false;
 
     try {
+      session.waInstance.events.removeAllListeners();
       if (session.waInstance.isConnected()) {
         await session.waInstance.disconnect();
       }

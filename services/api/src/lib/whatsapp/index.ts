@@ -57,6 +57,10 @@ export class WhatsApp {
   }
 
   private async handleSocketUpdates(update: any) {
+    console.log(
+      "[WhatsApp] connection.update:",
+      JSON.stringify(update, null, 2),
+    );
     console.log(update);
     if (update.connection) this.connection = update.connection || "close";
 
@@ -87,7 +91,7 @@ export class WhatsApp {
     this.socket = init({
       auth: this.store.state,
       printQRInTerminal: false,
-      logger: pino({ level: "error" }),
+      logger: pino({ level: "debug" }),
       generateHighQualityLinkPreview: true,
       syncFullHistory: false,
       // 👇 mimics a real Windows / Edge browser
@@ -99,6 +103,11 @@ export class WhatsApp {
   }
 
   async connectAsync(): Promise<WhatsApp> {
+    if (this.socket) {
+      this.socket.ev.removeAllListeners("connection.update");
+      this.socket.ev.removeAllListeners("creds.update");
+      this._listenersAttached = false;
+    }
     this.init();
     this.onCredsUpdate();
 
