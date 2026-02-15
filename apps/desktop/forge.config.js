@@ -72,6 +72,7 @@ module.exports = {
           name: "lms-notify",
         },
         prerelease: false,
+
       },
     },
   ],
