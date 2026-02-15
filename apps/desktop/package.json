@@ -19,12 +19,13 @@
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-dmg": "^7.11.1",
     "@electron-forge/maker-rpm": "^7.11.1",
     "@electron-forge/maker-squirrel": "^7.11.1",
-    "@electron-forge/maker-dmg": "^7.11.1",
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
     "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron-forge/publisher-github": "^7.11.1",
     "@electron/fuses": "^1.0.0",
     "@types/debug": "^4.1.12",
     "@types/node": "^25.0.9",
@@ -37,7 +38,12 @@
   "dependencies": {
     "debug": "^4.4.3",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.7.3",
     "read-excel-file": "^6.0.3"
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@10.28.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neuodev/lms-notify.git"
+  }
 }
