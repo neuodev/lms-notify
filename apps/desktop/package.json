@@ -11,7 +11,8 @@
     "prepare": "ts-patch install -s",
     "build:main": "tsc --project tsconfig.main.json",
     "build:inject": "node scripts/build-inject.js",
-    "build": "pnpm build:main && pnpm build:inject"
+    "build": "pnpm build:main && pnpm build:inject",
+    "publish": "electron-forge publish"
   },
   "keywords": [],
   "author": "Ahmed Ghait <me@ahmedibrahim.dev>",

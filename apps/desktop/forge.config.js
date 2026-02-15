@@ -12,7 +12,7 @@ module.exports = {
     ignore: [
       /^\/src/,
       /^\/\.git/,
-      /^\/node_modules\/\.bin/,
+      // /^\/node_modules\/\.bin/,
       /^\/\.vscode/,
       /^\/scripts/,
       /^\/\.github/,
@@ -72,7 +72,6 @@ module.exports = {
           name: "lms-notify",
         },
         prerelease: false,
-
       },
     },
   ],

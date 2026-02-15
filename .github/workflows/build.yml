@@ -30,15 +30,15 @@ jobs:
         run: corepack enable pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
         working-directory: apps/desktop
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/desktop
 
       - name: Package Windows app
-        run: pnpm run make
+        run: npm run make
         working-directory: apps/desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,15 +70,15 @@ jobs:
         run: corepack enable pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
         working-directory: apps/desktop
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/desktop
 
       - name: Package macOS app
-        run: pnpm run make
+        run: npm run make
         working-directory: apps/desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
