@@ -63,16 +63,4 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
-  publishers: [
-    {
-      name: "@electron-forge/publisher-github",
-      config: {
-        repository: {
-          owner: "neuodev",
-          name: "lms-notify",
-        },
-        prerelease: true,
-      },
-    },
-  ],
 };
