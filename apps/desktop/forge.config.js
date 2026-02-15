@@ -71,7 +71,8 @@ module.exports = {
           owner: "neuodev",
           name: "lms-notify",
         },
-        prerelease: true,
+        prerelease: false,
+
       },
     },
   ],

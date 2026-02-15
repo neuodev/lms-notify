@@ -1,6 +1,10 @@
 import { app, BrowserWindow, session } from "electron";
 import fs from "node:fs";
 import path from "node:path";
+import { autoUpdater } from "electron-updater";
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -14,15 +18,13 @@ const createWindow = () => {
 
   win.loadURL("https://nvs.learnovia.com/#/auth/login");
 
-
-
   win.webContents.on("did-finish-load", () => {
     setTimeout(() => {
       try {
         console.log("📦 Loading WhatsApp plugin...");
 
         const basePath = app.isPackaged
-          ? path.join(process.resourcesPath, 'inject')
+          ? path.join(process.resourcesPath, "inject")
           : path.join(__dirname, "../inject");
 
         const bundlePath = path.join(basePath, "bundle.js");
@@ -64,4 +66,14 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   createWindow();
+  autoUpdater.checkForUpdatesAndNotify();
+});
+
+autoUpdater.on("update-downloaded", (info) => {
+  console.log("Update downloaded:", info);
+  autoUpdater.quitAndInstall();
+});
+
+autoUpdater.on("error", (err) => {
+  console.error("Update error:", err);
 });
