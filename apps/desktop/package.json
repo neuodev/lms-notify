@@ -9,7 +9,7 @@
     "package": "pnpm run build && electron-forge package",
     "make": "pnpm run build && electron-forge make",
     "prepare": "ts-patch install -s",
-    "build:main": "tsc --project tsconfig.main.json",
+    "build:main": "node scripts/build-main.js",
     "build:inject": "node scripts/build-inject.js",
     "build": "pnpm build:main && pnpm build:inject",
     "publish": "electron-forge publish"

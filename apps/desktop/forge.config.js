@@ -6,7 +6,7 @@ module.exports = {
     asar: true,
     name: "LMS.Notify",
     executableName: "lms-notify",
-    extraResource: ["./dist/inject"],
+    extraResource: ["./dist/inject", "../../node_modules/electron-updater"],
     appBundleId: "com.lms.notify",
     appCategoryType: "public.app-category.productivity",
     ignore: [
