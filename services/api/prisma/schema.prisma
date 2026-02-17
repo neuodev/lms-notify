@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  password  String
+  lmsType   LmsType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messageLogs MessageLog[]
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MessageLog {
+  id        String    @id @default(cuid())
+  school    School    @relation(fields: [schoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  schoolId  String
+  sessionId String?
+  recipient String
+  status    LogStatus
+  error     String?
+  message   String?
+  createdAt DateTime  @default(now())
+
+  @@index([schoolId])
+  @@index([createdAt])
+}
+
+enum LmsType {
+  LERNOVIA
+  CLASSERA
+  TEAMS
+  COLIGO
+}
+
+enum LogStatus {
+  SENT
+  FAILED
+}

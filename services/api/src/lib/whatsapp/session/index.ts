@@ -23,6 +23,7 @@ export class SessionManager extends EventEmitter {
 
   async createSession(
     storeType: "memory" | "file" = "memory",
+    schoolId: string,
     metadata: Session["metadata"],
   ): Promise<{ sessionId: string; qr?: string }> {
     await this.destroyOldestSession();
@@ -37,6 +38,7 @@ export class SessionManager extends EventEmitter {
       id: sessionId,
       waInstance: wa,
       store: wa.store,
+      schoolId,
       createdAt: Date.now(),
       lastActivity: Date.now(),
       status: "initializing",
