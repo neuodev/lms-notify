@@ -1,18 +1,17 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import { prisma } from "../lib/db";
+import { prisma } from "@/lib/db";
 import {
   requireAdminAuth,
   AdminAuthRequest,
-} from "../lib/middlewares/adminAuth";
+} from "@/lib/middlewares/adminAuth";
+import { sessionManager } from "@/lib/whatsapp/session";
 
 const router = Router();
 
-// All routes require admin authentication
 router.use(requireAdminAuth);
 
-// List all schools
-router.get("/", async (req: AdminAuthRequest, res) => {
+router.get("/", async (_, res) => {
   try {
     const schools = await prisma.school.findMany({
       include: {
@@ -28,7 +27,6 @@ router.get("/", async (req: AdminAuthRequest, res) => {
   }
 });
 
-// Get single school
 router.get("/:id", async (req: AdminAuthRequest, res) => {
   try {
     const { id } = req.params;
@@ -38,7 +36,7 @@ router.get("/:id", async (req: AdminAuthRequest, res) => {
       include: {
         messageLogs: {
           orderBy: { createdAt: "desc" },
-          take: 50, // recent logs
+          take: 50,
         },
       },
     });
@@ -47,40 +45,42 @@ router.get("/:id", async (req: AdminAuthRequest, res) => {
         .status(404)
         .json({ success: false, error: "School not found" });
     }
-    res.json({ success: true, data: school });
+
+    const activeSessions = sessionManager
+      .getAllSessions()
+      .filter((session) => session.schoolId === id);
+
+    res.json({ success: true, data: { ...school, activeSessions } });
   } catch (error) {
     console.error("Error fetching school:", error);
     res.status(500).json({ success: false, error: "Failed to fetch school" });
   }
 });
 
-// Create new school
 router.post("/", async (req: AdminAuthRequest, res) => {
   try {
-    const { name, email, password, lmsType } = req.body;
-    if (!name || !email || !password || !lmsType) {
+    const { name, password, lmsType } = req.body;
+    if (!name || !password || !lmsType) {
       return res
         .status(400)
         .json({ success: false, error: "Missing required fields" });
     }
 
-    // Validate lmsType enum
     if (!["LERNOVIA", "CLASSERA", "TEAMS", "COLIGO"].includes(lmsType)) {
       return res.status(400).json({ success: false, error: "Invalid lmsType" });
     }
 
-    const existing = await prisma.school.findUnique({ where: { email } });
+    const existing = await prisma.school.findFirst({ where: { name } });
     if (existing) {
       return res
         .status(409)
-        .json({ success: false, error: "Email already exists" });
+        .json({ success: false, error: "School already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const school = await prisma.school.create({
       data: {
         name,
-        email,
         password: hashedPassword,
         lmsType,
       },
@@ -93,10 +93,10 @@ router.post("/", async (req: AdminAuthRequest, res) => {
   }
 });
 
-// Update school
 router.put("/:id", async (req: AdminAuthRequest, res) => {
   try {
     const { id } = req.params;
+    if (typeof id !== "string") throw new Error("Enter valid school ID");
     const { name, password, lmsType } = req.body;
 
     const updateData: any = {};
@@ -114,8 +114,6 @@ router.put("/:id", async (req: AdminAuthRequest, res) => {
       updateData.lmsType = lmsType;
     }
 
-    if (typeof id !== "string") throw new Error("Enter valid school ID");
-
     const school = await prisma.school.update({
       where: { id },
       data: updateData,
@@ -128,15 +126,10 @@ router.put("/:id", async (req: AdminAuthRequest, res) => {
   }
 });
 
-// Delete school
 router.delete("/:id", async (req: AdminAuthRequest, res) => {
   try {
     const { id } = req.params;
     if (typeof id !== "string") throw new Error("Enter valid school ID");
-    // First delete related message logs? Prisma can cascade if set in schema.
-    // We have no cascade defined, so we'll need to delete logs manually or let them be orphaned? Better to cascade.
-    // For now, we'll rely on schema with onDelete: Cascade? We didn't set it. Let's update schema to cascade.
-    // We'll implement manually:
     await prisma.$transaction([
       prisma.messageLog.deleteMany({ where: { schoolId: id } }),
       prisma.school.delete({ where: { id } }),
@@ -146,6 +139,16 @@ router.delete("/:id", async (req: AdminAuthRequest, res) => {
     console.error("Error deleting school:", error);
     res.status(500).json({ success: false, error: "Failed to delete school" });
   }
+});
+
+router.get("/health", (_, res) => {
+  const stats = sessionManager.getStats();
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    sessions: stats,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 export default router;

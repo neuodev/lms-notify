@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import { prisma } from "../lib/db";
-import { generateAdminToken } from "../lib/common/jwt";
+import { prisma } from "@/lib/db";
+import { generateAdminToken } from "@/lib/common/jwt";
 
 const router = Router();
 
@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = generateAdminToken({
-      adminId: admin.id,
+      id: admin.id,
       email: admin.email,
       role: admin.role,
     });

@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../common/jwt";
+import { SchoolTokenPayload } from "../../types/auth";
 
 export interface SchoolAuthRequest extends Request {
-  school?: { schoolId: string; lmsType: string };
+  school?: SchoolTokenPayload;
 }
 
 export function requireSchoolAuth(
@@ -16,7 +17,7 @@ export function requireSchoolAuth(
   }
 
   const token = authHeader.substring(7);
-  const payload = verifyToken<{ schoolId: string; lmsType: string }>(token);
+  const payload = verifyToken<SchoolTokenPayload>(token);
   if (!payload) {
     return res
       .status(401)

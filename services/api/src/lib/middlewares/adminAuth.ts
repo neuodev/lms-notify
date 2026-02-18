@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../common/jwt";
+import { AdminTokenPayload } from "../../types/auth";
 
 export interface AdminAuthRequest extends Request {
-  admin?: { adminId: string; email: string; role: string };
+  admin?: AdminTokenPayload;
 }
 
 export function requireAdminAuth(
@@ -16,9 +17,7 @@ export function requireAdminAuth(
   }
 
   const token = authHeader.substring(7);
-  const payload = verifyToken<{ adminId: string; email: string; role: string }>(
-    token,
-  );
+  const payload = verifyToken<AdminTokenPayload>(token);
   if (!payload || payload.role !== "admin") {
     return res.status(403).json({ success: false, error: "Forbidden" });
   }
