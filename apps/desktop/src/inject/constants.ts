@@ -200,7 +200,7 @@ select {
 }
 
 .students-table-wrapper {
-  max-height: 350px;
+  max-height: 300px;
   overflow-y: auto;
   border: 1px solid #eee;
   border-radius: 8px;
@@ -744,6 +744,50 @@ input:focus {
   animation: pulse 2s infinite;
 }
 
+.template-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background-color: var(--bg-light, #f8fafc);
+  border-radius: 0.5rem;
+}
+
+/* Individual template button */
+.template-btn {
+  background-color: white;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 2rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary, #334155);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.template-btn:hover {
+  background-color: var(--primary-light, #e0f2fe);
+  border-color: var(--primary, #0284c7);
+  color: var(--primary-dark, #0369a1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.template-btn:active {
+  background-color: var(--primary, #0284c7);
+  border-color: var(--primary, #0284c7);
+  color: white;
+  transform: translateY(0);
+  box-shadow: none;
+}
+
 @keyframes pulse {
   0% { opacity: 1; }
   50% { opacity: 0.7; }
@@ -755,3 +799,33 @@ input:focus {
 export const API_BASE_URL = "https://nvsapi.learnovia.com/api";
 export const WHATSAPP_API_URL = "http://localhost:3000";
 export const PROD_WHATSAPP_API_URL = "https://api.kodhub.dev";
+export const MESSAGE_TEMPLATES = [
+  {
+    label: "تسجيل غياب",
+    text: "السلام عليكم ورحمة الله، برجاء العلم أن الطالب لم يحضر المدرسة اليوم",
+  },
+  {
+    label: "إعلان درجات",
+    text: "السلام عليكم ورحمة الله برجاء العلم أن درجات الطالب قد ظهرت، ويمكنكم الإطلاع عليها من خلال الLMS",
+  },
+  {
+    label: "تهنئة نجاح",
+    text: "السلام عليكم ورحمة الله، نبارك لكم على نجاح ابنكم وابننا ونتمنى له دوام التوفيق",
+  },
+  {
+    label: "إشعار رسوب",
+    text: "السلام عليكم ورحمة الله، نتأسف لإطلاعكم على هذا الخبر، ولكن ابنكم لم ينجح في امتحانات العام",
+  },
+  {
+    label: "إعلان عاجل",
+    text: "السلام عليكم ورحمة الله. إعلان عاجل",
+  },
+  {
+    label: "اجتماع أولياء الأمور",
+    text: "السلام عليكم ورحمة الله، نود إعلامكم أن اجتماع أولياء الأمور القادم سيكون يوم ... الساعة ....",
+  },
+  {
+    label: "تذكير بالمصروفات",
+    text: "السلام عليكم ورحمة الله، نود تذكيركم رجاء بمصاريف العام الدراسي الحالي وشكرا",
+  },
+];

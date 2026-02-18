@@ -5,6 +5,7 @@ import { DOMUtils } from "../utils";
 import { UserTableComponent } from "./table.component";
 import { FiltersComponent } from "./filters.component";
 import { excelService } from "../excel.service.js";
+import { MESSAGE_TEMPLATES } from "../constants";
 
 export class ModalComponent {
   private modal: HTMLElement;
@@ -98,7 +99,7 @@ export class ModalComponent {
     button.innerHTML = `<i class="fab fa-whatsapp"></i> الدعم`;
 
     // Style the button
-    button.style.position = "absolute";
+    button.style.position = "fixed";
     button.style.bottom = "20px";
     button.style.left = "20px";
     button.style.backgroundColor = "#4823ce";
@@ -179,13 +180,15 @@ export class ModalComponent {
     // Table controls
     const tableControls = this.createTableControls();
 
+    const templateSection = this.createTemplateButtonsSection();
+
     // Message area
     this.messageTextarea = DOMUtils.createElement(
       "textarea",
       "textarea",
     ) as HTMLTextAreaElement;
     this.messageTextarea.placeholder = "اكتب الرسالة هنا...";
-    this.messageTextarea.rows = 4;
+    this.messageTextarea.rows = 3;
 
     // Send button
     this.sendButton = DOMUtils.createElement(
@@ -204,6 +207,7 @@ export class ModalComponent {
     this.contentWrapper.appendChild(uploadSection);
     this.contentWrapper.appendChild(tableControls);
     this.contentWrapper.appendChild(this.tableContainer);
+    this.contentWrapper.appendChild(templateSection);
     this.contentWrapper.appendChild(this.messageTextarea);
     this.contentWrapper.appendChild(this.sendButton);
   }
@@ -238,6 +242,27 @@ export class ModalComponent {
     tableControls.appendChild(this.selectedCountElement);
 
     return tableControls;
+  }
+
+  private createTemplateButtonsSection(): HTMLElement {
+    const container = DOMUtils.createElement("div", "template-buttons");
+
+    MESSAGE_TEMPLATES.forEach((template) => {
+      const btn = DOMUtils.createElement(
+        "button",
+        "template-btn",
+      ) as HTMLButtonElement;
+      btn.type = "button";
+      btn.textContent = template.label;
+      btn.setAttribute("aria-label", `استخدام قالب: ${template.label}`);
+      btn.onclick = () => {
+        this.messageTextarea.value = template.text;
+        this.messageTextarea.focus();
+      };
+      container.appendChild(btn);
+    });
+
+    return container;
   }
 
   private showQRCode(qrCode: string | null | undefined): void {
