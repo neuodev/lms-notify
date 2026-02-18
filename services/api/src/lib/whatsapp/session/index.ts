@@ -23,6 +23,7 @@ export class SessionManager extends EventEmitter {
 
   async createSession(
     storeType: "memory" | "file" = "memory",
+    schoolId: string,
     metadata: Session["metadata"],
   ): Promise<{ sessionId: string; qr?: string }> {
     await this.destroyOldestSession();
@@ -37,6 +38,7 @@ export class SessionManager extends EventEmitter {
       id: sessionId,
       waInstance: wa,
       store: wa.store,
+      schoolId,
       createdAt: Date.now(),
       lastActivity: Date.now(),
       status: "initializing",
@@ -234,3 +236,25 @@ export class SessionManager extends EventEmitter {
     return stats;
   }
 }
+
+export const sessionManager = new SessionManager({
+  sessionTimeout: 24 * 60 * 60 * 1000, // 24 hours
+  cleanupInterval: 5 * 60 * 1000, // 5 minutes
+  maxSessions: 100,
+});
+
+sessionManager.on("session:created", ({ sessionId }) => {
+  console.log(`Session created: ${sessionId}`);
+});
+
+sessionManager.on("session:authenticated", ({ sessionId }) => {
+  console.log(`Session authenticated: ${sessionId}`);
+});
+
+sessionManager.on("session:destroyed", ({ sessionId }) => {
+  console.log(`Session destroyed: ${sessionId}`);
+});
+
+sessionManager.on("manager:shutdown", () => {
+  console.log(`All Sessions destroyed`);
+});

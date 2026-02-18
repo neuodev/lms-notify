@@ -3,14 +3,15 @@
   "compilerOptions": {
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "target": "esnext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     // For nodejs:
     "lib": ["esnext"],
     "types": ["node"],
+    "strict": true,
 
     // Other Outputs
     "sourceMap": true,
@@ -38,11 +39,11 @@
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ],
     // Recommended Options
-    "strict": true,
     "jsx": "react-jsx",
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
-  }
+  },
+  "include": ["./src/*"]
 }
