@@ -3,6 +3,9 @@ name: Build Electron App
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -43,6 +46,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Publish to GitHub Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: pnpm run publish
+        working-directory: apps/desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -53,6 +63,7 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    needs: build-windows
     strategy:
       matrix:
         node-version: [22.21.x]
@@ -82,6 +93,14 @@ jobs:
         working-directory: apps/desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Publish to GitHub Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/production'
+        run: pnpm run publish
+        working-directory: apps/desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
