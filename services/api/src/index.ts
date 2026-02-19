@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { sessionManager, SessionManager } from "./lib/whatsapp/session/index";
+import { sessionManager } from "@/lib/whatsapp/session";
 import authRoutes from "./routes/schoolAuth";
 import adminAuthRoutes from "./routes/adminAuth";
 import schoolManagementRoutes from "./routes/schoolManagement";

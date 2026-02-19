@@ -1,49 +1,23 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "target": "es2023",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    // For nodejs:
-    "lib": ["esnext"],
-    "types": ["node"],
-    "strict": true,
-
-    // Other Outputs
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "baseUrl": ".",
-    "rootDir": "./src",
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2023"],
     "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
 
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-    ],
-    // Recommended Options
-    "jsx": "react-jsx",
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
+    }
   },
-  "include": ["./src/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

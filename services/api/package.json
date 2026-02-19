@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
     "start": "pnpm run build && node dist/index.js",
     "clean:whatsapp": "rm -rf __whatsapp__",
     "prepare": "ts-patch install -s"
@@ -21,8 +21,10 @@
     "@types/node": "^25.0.9",
     "@types/pg": "^8.16.0",
     "@types/qrcode": "^1.5.6",
+    "esbuild": "^0.27.3",
     "prisma": "^7.4.0",
     "ts-patch": "^3.3.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-transform-paths": "^3.5.6"
   },
