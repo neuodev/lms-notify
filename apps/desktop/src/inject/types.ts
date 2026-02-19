@@ -48,3 +48,5 @@ export interface WhatsAppStatus {
   authenticated: boolean;
   qr?: string;
 }
+
+export type LMS_TYPE = "LERNOVIA" | "CLASSERA" | "MICROSOFT_TEAMS" | "COLIGO";

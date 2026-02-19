@@ -794,6 +794,73 @@ input:focus {
   100% { opacity: 1; }
 }
 
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+.login-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  direction: rtl;
+}
+.login-modal h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+.form-group {
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
+}
+.school-select, .password-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  text-align: center;
+  background: #ffebee;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-button:hover {
+  background: #128C7E;
+}
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 `;
 
 export const API_BASE_URL = "https://nvsapi.learnovia.com/api";
@@ -829,3 +896,9 @@ export const MESSAGE_TEMPLATES = [
     text: "السلام عليكم ورحمة الله، نود تذكيركم رجاء بمصاريف العام الدراسي الحالي وشكرا",
   },
 ];
+export const BACKEND_URL = "http://localhost:3000";
+export const PROD_BACKEND_URL = "https://api.kodhub.dev";
+export const STORAGE_TOKEN_KEY = "whatsapp_school_token";
+export const STORAGE_SCHOOL_ID_KEY = "whatsapp_school_id";
+export const STORAGE_LMS_TYPE_KEY = "whatsapp_lms_type";
+export const STORAGE_WHATSAPP_SESSION_ID = "whatsapp_session_id";

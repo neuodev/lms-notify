@@ -11,7 +11,8 @@
     "prepare": "ts-patch install -s",
     "build:main": "node scripts/build-main.js",
     "build:inject": "node scripts/build-inject.js",
-    "build": "pnpm build:main && pnpm build:inject",
+    "build:login": "node scripts/build-login.js",
+    "build": "pnpm build:main && pnpm build:inject && pnpm build:login",
     "publish": "electron-forge publish"
   },
   "keywords": [],
@@ -29,6 +30,7 @@
     "@electron-forge/publisher-github": "^7.11.1",
     "@electron/fuses": "^1.0.0",
     "@types/debug": "^4.1.12",
+    "@types/electron-store": "^3.2.2",
     "@types/node": "^25.0.9",
     "electron": "^40.0.0",
     "esbuild": "^0.27.3",
@@ -39,6 +41,7 @@
   "dependencies": {
     "debug": "^4.4.3",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^11.0.2",
     "electron-updater": "^6.7.3",
     "read-excel-file": "^6.0.3"
   },
