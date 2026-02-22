@@ -793,7 +793,6 @@ input:focus {
   50% { opacity: 0.7; }
   100% { opacity: 1; }
 }
-
 `;
 
 export const API_BASE_URL = "https://nvsapi.learnovia.com/api";
@@ -829,3 +828,9 @@ export const MESSAGE_TEMPLATES = [
     text: "السلام عليكم ورحمة الله، نود تذكيركم رجاء بمصاريف العام الدراسي الحالي وشكرا",
   },
 ];
+export const BACKEND_URL = "http://localhost:3000";
+export const PROD_BACKEND_URL = "https://api.kodhub.dev";
+export const STORAGE_TOKEN_KEY = "whatsapp_school_token";
+export const STORAGE_SCHOOL_ID_KEY = "whatsapp_school_id";
+export const STORAGE_LMS_TYPE_KEY = "whatsapp_lms_type";
+export const STORAGE_WHATSAPP_SESSION_ID = "whatsapp_session_id";

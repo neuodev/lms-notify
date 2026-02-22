@@ -1,11 +1,12 @@
 import { User, FilterState } from "../types";
 import { UserFilter } from "../filters";
-import { apiService } from "../api.service";
 import { DOMUtils } from "../utils";
 import { UserTableComponent } from "./table.component";
 import { FiltersComponent } from "./filters.component";
 import { excelService } from "../excel.service.js";
 import { MESSAGE_TEMPLATES } from "../constants";
+import { LmsClient } from "../lms-clients/types";
+import { backendService } from "../backend.service";
 
 export class ModalComponent {
   private modal: HTMLElement;
@@ -47,10 +48,11 @@ export class ModalComponent {
   private verifyButton!: HTMLButtonElement;
   private authErrorText!: HTMLElement;
 
-  constructor(onClose: () => void) {
-    console.log("ModalComponent: Constructor called");
+  private lmsClient: LmsClient;
 
+  constructor(onClose: () => void, lmsClient: LmsClient) {
     this.onClose = onClose;
+    this.lmsClient = lmsClient;
     this.modal = this.createModal();
     this.initializeComponents();
   }
@@ -311,7 +313,7 @@ export class ModalComponent {
       console.log(`Checking auth attempt ${attempt}`);
 
       try {
-        const status = await apiService.getSessionStatus(this.sessionId!);
+        const status = await backendService.getSessionStatus(this.sessionId!);
         if (status.authenticated) {
           clearInterval(interval);
           console.log("Authentication successful");
@@ -339,7 +341,7 @@ export class ModalComponent {
     if (this.users.length === 0) {
       this.showTableLoading("جاري تحميل المستخدمين من النظام...");
       try {
-        this.users = await apiService.fetchAllUsers();
+        this.users = await this.lmsClient.fetchAllUsers(); // <-- use client
         this.initializeTableAndFilters();
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -454,7 +456,7 @@ export class ModalComponent {
     this.sendButton.textContent = "جاري الإرسال...";
 
     try {
-      const result = await apiService.sendBulkMessages(
+      const result = await backendService.sendBulkMessages(
         this.sessionId!, // we know it's valid because we checked authenticated
         message,
         numbers,
@@ -462,10 +464,10 @@ export class ModalComponent {
 
       // Calculate sent and failed counts from the results array
       const sentCount = result.results.filter(
-        (r) => r.status === "sent",
+        (r: { status: "sent" | "failed" }) => r.status === "sent",
       ).length;
       const failedCount = result.results.filter(
-        (r) => r.status === "failed",
+        (r: { status: "sent" | "failed" }) => r.status === "failed",
       ).length;
 
       setTimeout(() => {
@@ -761,7 +763,7 @@ export class ModalComponent {
     if (!this.sessionId) return;
 
     try {
-      const status = await apiService.getSessionStatus(this.sessionId);
+      const status = await backendService.getSessionStatus(this.sessionId);
       console.log("Session status:", status);
 
       if (status.authenticated) {
@@ -790,7 +792,7 @@ export class ModalComponent {
   private async createNewSession(): Promise<void> {
     try {
       this.authStatusText.textContent = "جاري إنشاء جلسة جديدة...";
-      const data = await apiService.createSession();
+      const data = await backendService.createSession();
       this.sessionId = data.sessionId;
       localStorage.setItem(this.STORAGE_KEY, data.sessionId);
       console.log("New session created:", data.sessionId);

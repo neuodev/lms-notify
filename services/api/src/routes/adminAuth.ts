@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/db";
-import { generateAdminToken } from "@/lib/common/jwt";
+import { prisma } from "@/lib/db/index.js";
+import { generateAdminToken } from "@/lib/common/jwt.js";
 
 const router = Router();
 

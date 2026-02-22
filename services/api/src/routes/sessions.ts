@@ -9,42 +9,38 @@ import { prisma } from "../lib/db";
 
 const router = Router();
 
-router.post(
-  "/sessions",
-  requireSchoolAuth,
-  async (req: SchoolAuthRequest, res) => {
-    try {
-      const metadata = {
-        userAgent: req.get("User-Agent"),
-        ip: req.ip || req.socket.remoteAddress,
-      };
-      const schoolId = req.school?.schoolId;
-      if (!schoolId) throw new Error("No School ID");
+router.post("/", requireSchoolAuth, async (req: SchoolAuthRequest, res) => {
+  try {
+    const metadata = {
+      userAgent: req.get("User-Agent"),
+      ip: req.ip || req.socket.remoteAddress,
+    };
+    const schoolId = req.school?.schoolId;
+    if (!schoolId) throw new Error("No School ID");
 
-      const { sessionId } = await sessionManager.createSession(
-        STORE_TYPE,
-        schoolId,
-        metadata,
-      );
+    const { sessionId } = await sessionManager.createSession(
+      STORE_TYPE,
+      schoolId,
+      metadata,
+    );
 
-      res.status(201).json({
-        success: true,
-        sessionId,
-        message:
-          "Session created successfully. Use sessionId for all subsequent requests.",
-      });
-    } catch (error) {
-      console.error("Failed to create session:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to create session",
-      });
-    }
-  },
-);
+    res.status(201).json({
+      success: true,
+      sessionId,
+      message:
+        "Session created successfully. Use sessionId for all subsequent requests.",
+    });
+  } catch (error) {
+    console.error("Failed to create session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create session",
+    });
+  }
+});
 
 router.get(
-  "/sessions/:sessionId/status",
+  "/:sessionId/status",
   requireSchoolAuth,
   async (req: SchoolAuthRequest, res) => {
     const { sessionId } = req.params;
@@ -79,7 +75,7 @@ router.get(
 );
 
 router.post(
-  "/sessions/:sessionId/send-bulk",
+  "/:sessionId/send-bulk",
   requireSchoolAuth,
   async (req: SchoolAuthRequest, res) => {
     const { sessionId } = req.params;
@@ -161,7 +157,7 @@ router.post(
   },
 );
 
-router.delete("/sessions/:sessionId", async (req, res) => {
+router.delete("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   const destroyed = await sessionManager.destroySession(sessionId);
