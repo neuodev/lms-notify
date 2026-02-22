@@ -1,7 +1,8 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/db";
-import { generateSchoolToken } from "../lib/common/jwt";
+import { generateSchoolToken, verifyToken } from "../lib/common/jwt";
+import { AdminTokenPayload } from "@/types/auth";
 
 const router = Router();
 

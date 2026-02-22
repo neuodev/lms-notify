@@ -1,7 +1,8 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/db/index.js";
-import { generateAdminToken } from "@/lib/common/jwt.js";
+import { generateAdminToken, verifyToken } from "@/lib/common/jwt.js";
+import { AdminTokenPayload } from "@/types/auth";
 
 const router = Router();
 
@@ -38,6 +39,17 @@ router.post("/login", async (req, res) => {
     console.error("Admin login error:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
+});
+
+router.get("/me", async (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) return res.status(401).json({ success: false });
+  const payload = verifyToken<AdminTokenPayload>(token);
+  if (!payload || payload.role !== "admin") {
+    return res.status(403).json({ success: false, error: "Forbidden" });
+  }
+
+  res.json({ username: "admin" });
 });
 
 export default router;

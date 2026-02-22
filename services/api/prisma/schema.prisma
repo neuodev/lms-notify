@@ -39,7 +39,6 @@ model MessageLog {
   createdAt DateTime  @default(now())
 
   @@index([schoolId])
-  @@index([createdAt])
 }
 
 enum LmsType {
