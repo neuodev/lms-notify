@@ -4,3 +4,5 @@
 **/__whatsapp__/
 out/
 .env.local
+
+.env
