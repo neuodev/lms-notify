@@ -4,10 +4,10 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 module.exports = {
   packagerConfig: {
     asar: true,
-    name: "LMS.Notify",
-    executableName: "lms-notify",
+    name: "sila",
+    executableName: "sila-صلة",
     extraResource: ["./dist/inject", "../../node_modules/electron-updater"],
-    appBundleId: "com.lms.notify",
+    appBundleId: "com.sila",
     appCategoryType: "public.app-category.productivity",
     ignore: [
       /^\/src/,
@@ -26,10 +26,10 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "LMS.Notify",
+        name: "Sila",
         authors: "Ahmed Ghait",
-        description: "LMS Notify Desktop Application",
-        setupExe: "LMS-Notify-Setup.exe",
+        description: "برنامج صلة لتحسين التواصل مع أولياء الأمور",
+        setupExe: "Sila-Setup.exe",
         setupIcon: "./icon.ico",
       },
     },

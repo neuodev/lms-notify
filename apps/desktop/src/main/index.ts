@@ -121,8 +121,8 @@ async function checkStoredToken() {
 
 function createLoginWindow() {
   const windowOptions: BrowserWindowConstructorOptions = {
-    width: 500,
-    height: 600,
+    width: 1280,
+    height: 720,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

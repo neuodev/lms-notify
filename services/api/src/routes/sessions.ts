@@ -79,63 +79,64 @@ router.post(
   requireSchoolAuth,
   async (req: SchoolAuthRequest, res) => {
     const { sessionId } = req.params;
-    if (typeof sessionId !== "string") throw new Error("No session ID");
-    const { numbers, message } = req.body;
+    if (typeof sessionId != "string") throw Error("Enter valide session id");
+    const { recipients } = req.body;
 
-    const session = sessionManager.getSession(sessionId);
-    if (!session)
-      return res.status(404).json({
-        success: false,
-        error: "Session not found or expired",
-      });
-
-    if (session.waInstance.connection !== "open")
-      return res.status(401).json({
-        success: false,
-        error: "Whatsrouter not authenticated for this session",
-      });
-
-    if (!numbers || !Array.isArray(numbers) || numbers.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid numbers array",
-      });
+    if (!Array.isArray(recipients) || recipients.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid recipients array" });
+    }
+    for (const r of recipients) {
+      if (typeof r.number !== "string" || typeof r.message !== "string") {
+        return res.status(400).json({
+          success: false,
+          error: "Each recipient must have number and message",
+        });
+      }
     }
 
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid message",
-      });
+    const session = sessionManager.getSession(sessionId);
+    if (!session || session.schoolId !== req.school!.schoolId) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Session not found" });
+    }
+    if (session.waInstance.connection !== "open") {
+      return res
+        .status(401)
+        .json({ success: false, error: "WhatsApp not authenticated" });
     }
 
     const results = [];
-    for (const number of numbers) {
+    for (const { number, message } of recipients) {
       try {
         const jid = session.waInstance.asWhatsAppId(number);
         await session.waInstance.sendPresence(jid, "composing");
         await session.waInstance.sendMessage(jid, { text: message });
+
         await prisma.messageLog.create({
           data: {
             schoolId: req.school!.schoolId,
-            sessionId: sessionId,
+            sessionId,
             recipient: number,
             status: "SENT",
-            message,
+            message: message,
           },
         });
+
         results.push({ number, status: "sent", timestamp: Date.now() });
-        const delay = Math.floor(Math.random() * 1500 + 1000);
+        const delay = Math.floor(Math.random() * 1500 + 500);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } catch (err) {
         await prisma.messageLog.create({
           data: {
             schoolId: req.school!.schoolId,
-            sessionId: sessionId,
+            sessionId,
             recipient: number,
             status: "FAILED",
             error: err instanceof Error ? err.message : "Unknown error",
-            message: message,
+            message: message?.substring(0, 500),
           },
         });
         results.push({

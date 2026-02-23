@@ -35,3 +35,12 @@ const srcHtml = path.join(__dirname, "../src/login/index.html");
 const destHtml = path.join(loginDir, "index.html");
 fs.copyFileSync(srcHtml, destHtml);
 console.log("✅ Login HTML copied to dist/login/index.html");
+
+const srcImage = path.join(__dirname, "../src/login/logo.jpg");
+const destImage = path.join(loginDir, "logo.jpg");
+if (fs.existsSync(srcImage)) {
+  fs.copyFileSync(srcImage, destImage);
+  console.log("✅ Logo image copied to dist/login/logo.jpg");
+} else {
+  console.warn("⚠️ Logo image not found at src/login/logo.jpg");
+}

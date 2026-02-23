@@ -42,6 +42,13 @@ export class ExcelService {
       const user: User = {
         id: parseInt(row[0]) || index + 1,
         fullname: String(row[1] || ""),
+        firstname: String(row[1] || ""),
+        lastname: String(
+          (row[1] as string)
+            .split(" ")
+            .filter((_, idx) => idx !== 0)
+            .join(" ") || "",
+        ),
         email: String(row[2] || ""),
         level: String(row[3] || "غير محدد"),
         phone: String(row[4] || ""),

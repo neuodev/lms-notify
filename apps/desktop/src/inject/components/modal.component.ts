@@ -7,6 +7,7 @@ import { excelService } from "../excel.service.js";
 import { MESSAGE_TEMPLATES } from "../constants";
 import { LmsClient } from "../lms-clients/types";
 import { backendService } from "../backend.service";
+import { PLACEHOLDERS, resolveMessage } from "../placeholders";
 
 export class ModalComponent {
   private modal: HTMLElement;
@@ -183,14 +184,16 @@ export class ModalComponent {
     const tableControls = this.createTableControls();
 
     const templateSection = this.createTemplateButtonsSection();
+    const placeholderSection = this.createPlaceholderButtonsSection();
+    const messageRow = DOMUtils.createElement("div", "message-row");
 
     // Message area
-    this.messageTextarea = DOMUtils.createElement(
-      "textarea",
-      "textarea",
-    ) as HTMLTextAreaElement;
+    this.messageTextarea = DOMUtils.createElement("textarea", "textarea");
     this.messageTextarea.placeholder = "اكتب الرسالة هنا...";
     this.messageTextarea.rows = 3;
+
+    messageRow.appendChild(placeholderSection);
+    messageRow.appendChild(this.messageTextarea);
 
     // Send button
     this.sendButton = DOMUtils.createElement(
@@ -210,7 +213,7 @@ export class ModalComponent {
     this.contentWrapper.appendChild(tableControls);
     this.contentWrapper.appendChild(this.tableContainer);
     this.contentWrapper.appendChild(templateSection);
-    this.contentWrapper.appendChild(this.messageTextarea);
+    this.contentWrapper.appendChild(messageRow);
     this.contentWrapper.appendChild(this.sendButton);
   }
 
@@ -342,6 +345,7 @@ export class ModalComponent {
       this.showTableLoading("جاري تحميل المستخدمين من النظام...");
       try {
         this.users = await this.lmsClient.fetchAllUsers(); // <-- use client
+
         this.initializeTableAndFilters();
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -415,14 +419,48 @@ export class ModalComponent {
     }
   }
 
-  private async handleSend(): Promise<void> {
-    const message = this.messageTextarea.value.trim();
+  private createPlaceholderButtonsSection(): HTMLElement {
+    const container = DOMUtils.createElement("div", "placeholder-buttons");
+    container.innerHTML = '<div class="placeholder-title">أدرج متغير:</div>';
 
-    if (!message) {
+    PLACEHOLDERS.forEach((ph) => {
+      const btn = DOMUtils.createElement(
+        "button",
+        "template-btn",
+      ) as HTMLButtonElement;
+      btn.type = "button";
+      btn.textContent = ph.label;
+      btn.setAttribute("aria-label", `إدراج ${ph.label}`);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        this.insertPlaceholderAtCursor(`{{${ph.key}}}`);
+      };
+      container.appendChild(btn);
+    });
+
+    return container;
+  }
+
+  private insertPlaceholderAtCursor(placeholder: string): void {
+    const textarea = this.messageTextarea;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end);
+    textarea.value = before + placeholder + after;
+    // Move cursor after inserted placeholder
+    textarea.selectionStart = textarea.selectionEnd =
+      start + placeholder.length;
+    textarea.focus();
+  }
+
+  private async handleSend(): Promise<void> {
+    const template = this.messageTextarea.value.trim();
+    if (!template) {
       alert("الرجاء كتابة الرسالة أولاً");
       return;
     }
-
     if (this.selectedIds.size === 0) {
       alert("الرجاء تحديد مستخدم واحد على الأقل");
       return;
@@ -432,53 +470,50 @@ export class ModalComponent {
       this.selectedIds.has(user.id),
     );
 
-    // Resolve phone numbers
-    const numbers = selectedUsers
-      .map((user) => {
-        if (user.phone && user.phone !== "null") return user.phone;
-        if (user.parents?.length) {
-          const parentWithPhone = user.parents.find((p) => p.phone);
-          return parentWithPhone?.phone || null;
-        }
-        return null;
-      })
-      .filter((phone): phone is string => phone !== null && phone !== "");
+    // Build recipients array
+    const recipients: { number: string; message: string }[] = [];
+    for (const user of selectedUsers) {
+      // Resolve phone
+      let phone: string | null = null;
+      if (user.phone && user.phone !== "null") phone = user.phone;
+      else if (user.parents?.length) {
+        const parentWithPhone = user.parents.find((p) => p.phone);
+        phone = parentWithPhone?.phone || null;
+      }
+      if (!phone) continue; // skip if no phone
 
-    if (numbers.length === 0) {
+      // Personalize message
+      const personalizedMessage = resolveMessage(template, user);
+      recipients.push({ number: phone, message: personalizedMessage });
+    }
+
+    if (recipients.length === 0) {
       alert("لا يوجد أرقام هاتف صالحة للمستخدمين المحددين");
       return;
     }
-
-    console.log("Sending message to:", numbers.length, "numbers");
-    console.log("Message:", message);
 
     this.sendButton.disabled = true;
     this.sendButton.textContent = "جاري الإرسال...";
 
     try {
       const result = await backendService.sendBulkMessages(
-        this.sessionId!, // we know it's valid because we checked authenticated
-        message,
-        numbers,
+        this.sessionId!,
+        recipients, // new payload
       );
 
-      // Calculate sent and failed counts from the results array
+      // Calculate sent/failed counts from result.results
       const sentCount = result.results.filter(
-        (r: { status: "sent" | "failed" }) => r.status === "sent",
+        (r: any) => r.status === "sent",
       ).length;
       const failedCount = result.results.filter(
-        (r: { status: "sent" | "failed" }) => r.status === "failed",
+        (r: any) => r.status === "failed",
       ).length;
 
       setTimeout(() => {
         this.sendButton.disabled = false;
-        this.sendButton.innerHTML = `
-            <i class="fa-solid fa-paper-plane"></i>
-    إرسال الرسالة
-    `;
+        this.sendButton.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة`;
         this.messageTextarea.value = "";
-
-        // Show appropriate alert based on results
+        // Show alert based on results
         if (sentCount > 0 && failedCount === 0) {
           alert(`تم الإرسال بنجاح إلى ${sentCount} رقم`);
         } else if (sentCount > 0 && failedCount > 0) {
@@ -490,7 +525,6 @@ export class ModalComponent {
         }
       }, 2000);
     } catch (err: any) {
-      // If session became invalid, clear it and prompt to reconnect
       if (err.status === 401 || err.status === 404) {
         localStorage.removeItem(this.STORAGE_KEY);
         this.sessionId = null;

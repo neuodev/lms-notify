@@ -1,5 +1,5 @@
 import {
-  BACKEND_URL,
+  PROD_BACKEND_URL,
   STORAGE_TOKEN_KEY,
   STORAGE_LMS_TYPE_KEY,
   STORAGE_SCHOOL_ID_KEY,
@@ -17,7 +17,7 @@ class BackendService {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     };
-    const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+    const response = await fetch(`${PROD_BACKEND_URL}${endpoint}`, {
       ...options,
       headers,
     });
@@ -46,12 +46,11 @@ class BackendService {
 
   async sendBulkMessages(
     sessionId: string,
-    message: string,
-    numbers: string[],
+    recipients: { number: string; message: string }[],
   ) {
     return this.request(`/sessions/${sessionId}/send-bulk`, {
       method: "POST",
-      body: JSON.stringify({ message, numbers }),
+      body: JSON.stringify({ recipients }),
     });
   }
 
