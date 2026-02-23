@@ -22,7 +22,7 @@ autoUpdater.autoInstallOnAppQuit = true;
 let mainWindow: BrowserWindow | null = null;
 let loginWindow: BrowserWindow | null = null;
 
-const BACKEND_URL = "http://localhost:3000"; // from env in production
+const BACKEND_URL = "https://api.kodhub.dev"; // from env in production
 
 // Map LMS types to URLs
 const LMS_URLS: Record<string, string> = {
