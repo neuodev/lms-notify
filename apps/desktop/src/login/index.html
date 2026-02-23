@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src http://localhost:3000; img-src 'self' file: data:"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://api.kodhub.dev; img-src 'self' file: data:"
     />
     <title>صِلَة - SILA Login</title>
     <style>
@@ -299,7 +299,7 @@
         let selectedSchool = null; // { id, name }
 
         // Load schools from backend
-        fetch("http://localhost:3000/schools/schools")
+        fetch("https://api.kodhub.dev/schools/schools")
           .then((res) => {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return res.json();

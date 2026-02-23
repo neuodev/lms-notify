@@ -6,7 +6,11 @@ module.exports = {
     asar: true,
     name: "sila",
     executableName: "sila-صلة",
-    extraResource: ["./dist/inject", "../../node_modules/electron-updater"],
+    extraResource: [
+      "./dist/inject",
+      "./dist/login",
+      "../../node_modules/electron-updater",
+    ],
     appBundleId: "com.sila",
     appCategoryType: "public.app-category.productivity",
     ignore: [
