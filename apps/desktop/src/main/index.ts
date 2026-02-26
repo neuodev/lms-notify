@@ -1,7 +1,6 @@
 import {
   app,
   BrowserWindow,
-  session,
   ipcMain,
   BrowserWindowConstructorOptions,
 } from "electron";
@@ -16,8 +15,15 @@ const store = new Store({
   encryptionKey: "your-encryption-key", // optional, but recommended
 });
 
+console.log(`App version: ${app.getVersion()}`);
+
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.setFeedURL({
+  provider: "github",
+  owner: "neuodev",
+  repo: "lms-notify",
+});
 
 let mainWindow: BrowserWindow | null = null;
 let loginWindow: BrowserWindow | null = null;
@@ -185,6 +191,16 @@ app.whenReady().then(async () => {
     createLoginWindow();
   }
   autoUpdater.checkForUpdatesAndNotify();
+});
+
+autoUpdater.on("checking-for-update", () => {
+  console.log("Checking for update...");
+});
+autoUpdater.on("update-available", (info) => {
+  console.log("Update available:", info);
+});
+autoUpdater.on("update-not-available", (info) => {
+  console.log("Update not available:", info);
 });
 
 autoUpdater.on("update-downloaded", (info) => {
