@@ -6,6 +6,7 @@ module.exports = {
     asar: true,
     name: "sila",
     executableName: "sila-صلة",
+    icon: "./icon",
     extraResource: [
       "./dist/inject",
       "./dist/login",
