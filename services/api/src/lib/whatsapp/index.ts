@@ -94,8 +94,9 @@ export class WhatsApp {
       logger: pino({ level: "debug" }),
       generateHighQualityLinkPreview: true,
       syncFullHistory: false,
+      version: [2, 3000, 1034074495],
       // 👇 mimics a real Windows / Edge browser
-      browser: ["Windows", "Edge", "20.0.04"],
+      browser: ["Windows", "Chrome", "130.0.0"],
       connectTimeoutMs: 60000,
       keepAliveIntervalMs: 25000,
       qrTimeout: 40000,

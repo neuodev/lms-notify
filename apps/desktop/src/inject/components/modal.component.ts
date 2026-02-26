@@ -785,6 +785,7 @@ export class ModalComponent {
 
     // Get stored sessionId from localStorage
     const storedId = localStorage.getItem(this.STORAGE_KEY);
+
     if (storedId) {
       this.sessionId = storedId;
       this.checkExistingSession();
@@ -795,10 +796,8 @@ export class ModalComponent {
 
   private async checkExistingSession(): Promise<void> {
     if (!this.sessionId) return;
-
     try {
       const status = await backendService.getSessionStatus(this.sessionId);
-      console.log("Session status:", status);
 
       if (status.authenticated) {
         this.showMainContent();
@@ -807,7 +806,9 @@ export class ModalComponent {
         this.showQRCode(status.qr);
       }
     } catch (error: any) {
-      if (error.status === 404) {
+      console.log(`status: ${error.status}`);
+
+      if (error.status === 404 || !error.status) {
         // Session expired or server restarted
         console.warn("Stored session invalid, creating new one...");
         localStorage.removeItem(this.STORAGE_KEY);
@@ -825,13 +826,14 @@ export class ModalComponent {
 
   private async createNewSession(): Promise<void> {
     try {
+      console.log("Creating new Session");
+
       this.authStatusText.textContent = "جاري إنشاء جلسة جديدة...";
       const data = await backendService.createSession();
       this.sessionId = data.sessionId;
       localStorage.setItem(this.STORAGE_KEY, data.sessionId);
       console.log("New session created:", data.sessionId);
 
-      // Immediately check status (will contain QR)
       await this.checkExistingSession(); // will handle QR display
     } catch (error) {
       console.error("Failed to create session:", error);

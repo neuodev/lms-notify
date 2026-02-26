@@ -54,10 +54,8 @@ router.get(
       });
     }
 
-    // wait to ensure qr creation
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const wa = session.waInstance;
+    if (!wa.qr) await new Promise((resolve) => setTimeout(resolve, 1500));
     const status = {
       success: true,
       sessionId,
