@@ -18,19 +18,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Mock data for the chart until backend provides historical data
-const mockChartData = [
-  { date: "Mon", messages: 120 },
-  { date: "Tue", messages: 150 },
-  { date: "Wed", messages: 180 },
-  { date: "Thu", messages: 140 },
-  { date: "Fri", messages: 210 },
-  { date: "Sat", messages: 250 },
-  { date: "Sun", messages: 310 },
-];
-
 export default function Dashboard() {
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data, isLoading } = useDashboardStats();
+
+  const stats = data?.data;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -49,58 +40,50 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Schools"
-          value={stats?.totalSchools ?? 0}
+          value={stats?.schoolsCount}
           icon={Building2}
           isLoading={isLoading}
-          trend="+12% from last month"
           color="text-blue-500"
           bg="bg-blue-500/10"
         />
         <StatCard
           title="Messages Sent"
-          value={stats?.totalMessages ?? 0}
+          value={stats?.messagesCount}
           icon={MessageSquare}
           isLoading={isLoading}
-          trend="+24% from last week"
           color="text-primary"
           bg="bg-primary/10"
         />
         <StatCard
           title="Success Rate"
-          value={`${stats?.successRate ?? 0}%`}
+          value={`${stats?.successRate}%`}
           icon={CheckCircle2}
           isLoading={isLoading}
-          trend="Stable"
           color="text-emerald-500"
           bg="bg-emerald-500/10"
         />
         <StatCard
           title="Active Sessions"
-          value={stats?.activeSessions ?? 0}
+          value={stats?.activeSessionsCount}
           icon={Activity}
           isLoading={isLoading}
-          trend="Live now"
           color="text-amber-500"
           bg="bg-amber-500/10"
         />
       </div>
 
-      {/* Charts Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="col-span-1 lg:col-span-2 shadow-sm border-border/50">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold flex items-center justify-between">
               Message Activity (Last 7 Days)
-              <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                Mock Data
-              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-75 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                  data={mockChartData}
+                  data={stats?.chartData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                 >
                   <defs>
@@ -197,7 +180,21 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, isLoading, color, bg }: any) {
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  isLoading,
+  color,
+  bg,
+}: {
+  title: string;
+  value?: number | string;
+  icon: React.ElementType;
+  isLoading: boolean;
+  color: string;
+  bg: string;
+}) {
   return (
     <Card className="shadow-sm border-border/50 hover:shadow-md transition-all duration-300">
       <CardContent className="p-6">

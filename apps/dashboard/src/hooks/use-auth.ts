@@ -4,11 +4,10 @@ import { useLocation } from "wouter";
 import type { AdminLoginInput } from "@/types/auth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { queryClient } from "@/lib/queryClient";
 
 export function useAuth() {
   return useQuery({
-    queryKey: ["AUTH"],
+    queryKey: [api.admin.auth.me],
     queryFn: async () => {
       const res = await fetch(api.admin.auth.me, { headers: getAuthHeaders() });
       if (res.status === 401) {
@@ -62,7 +61,7 @@ export function useLogout() {
 
   return () => {
     removeToken();
-    queryClient.setQueryData(["Auth"], null);
+    queryClient.setQueryData([api.admin.auth.me], null);
     queryClient.clear();
     toast("Logged Out Successfully!");
     setLocation("/login");

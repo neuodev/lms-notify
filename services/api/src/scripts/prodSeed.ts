@@ -9,22 +9,10 @@ const schools: { name: string; lmsType: LmsType }[] = [
   },
 ];
 
-async function main() {
-  const adminEmail = "admin@sila.com";
+async function createSchools() {
   const password = "sila@123";
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  const admin = await prisma.admin.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      email: adminEmail,
-      password: hashedPassword,
-      role: "admin",
-    },
-  });
-  console.log({ admin });
 
   for (const school of schools) {
     const existing = await prisma.school.findFirst({
@@ -46,7 +34,25 @@ async function main() {
   }
 }
 
-main()
+async function createAdmin() {
+  const adminEmail = "mohsen@sila.com";
+  const password = "sila@123";
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const admin = await prisma.admin.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      email: adminEmail,
+      password: hashedPassword,
+      role: "admin",
+    },
+  });
+  console.log({ admin });
+}
+
+createAdmin()
   .catch((e) => {
     console.error(e);
     process.exit(1);

@@ -44,8 +44,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Building2,
   Edit2,
@@ -55,9 +53,17 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
+import type {
+  CreateSchoolPayload,
+  School,
+  UpdateSchoolPayload,
+} from "@/types/school";
 
 export default function Schools() {
-  const { data: schools, isLoading } = useSchools();
+  const { data, isLoading } = useSchools();
+  console.log({ data });
+
+  const schools = data?.data.schools;
   const [searchTerm, setSearchTerm] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -118,6 +124,9 @@ export default function Schools() {
                 <TableHead className="font-semibold text-foreground">
                   Total Messages
                 </TableHead>
+                <TableHead className="font-semibold text-foreground">
+                  Active Sessions
+                </TableHead>
                 <TableHead className="text-right font-semibold text-foreground">
                   Actions
                 </TableHead>
@@ -169,7 +178,12 @@ export default function Schools() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="bg-background">
-                        {school._count?.messageLogs || 0}
+                        {school.messageCount || 0}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-background">
+                        {school.sessions || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -200,19 +214,18 @@ export default function Schools() {
 
 function CreateSchoolDialog({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateSchool();
-  const form = useForm<z.infer<typeof insertSchoolSchema>>({
-    resolver: zodResolver(insertSchoolSchema),
+  const form = useForm<CreateSchoolPayload>({
     defaultValues: { name: "", password: "", lmsType: "LERNOVIA" },
   });
 
-  const onSubmit = async (values: z.infer<typeof insertSchoolSchema>) => {
+  const onSubmit = async (values: CreateSchoolPayload) => {
     await createMutation.mutateAsync(values);
     onClose();
     form.reset();
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-106.25">
       <DialogHeader>
         <DialogTitle>Add New School</DialogTitle>
         <DialogDescription>
@@ -291,19 +304,18 @@ function CreateSchoolDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
-function EditSchoolDialog({ school }: { school: any }) {
+function EditSchoolDialog({ school }: { school: School }) {
   const [open, setOpen] = useState(false);
   const updateMutation = useUpdateSchool();
-  const form = useForm<z.infer<typeof insertSchoolSchema>>({
-    resolver: zodResolver(insertSchoolSchema),
+  const form = useForm<UpdateSchoolPayload>({
     defaultValues: {
       name: school.name,
-      password: school.password,
-      lmsType: school.lmsType as any,
+      password: school.password || "",
+      lmsType: school.lmsType,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof insertSchoolSchema>) => {
+  const onSubmit = async (values: UpdateSchoolPayload) => {
     await updateMutation.mutateAsync({ id: school.id, data: values });
     setOpen(false);
   };
@@ -319,7 +331,7 @@ function EditSchoolDialog({ school }: { school: any }) {
           <Edit2 className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Edit School</DialogTitle>
           <DialogDescription>
@@ -429,7 +441,7 @@ function DeleteSchoolDialog({ id, name }: { id: string; name: string }) {
           <Trash2 className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle className="text-red-500">Delete School</DialogTitle>
           <DialogDescription>

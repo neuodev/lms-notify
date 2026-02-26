@@ -1,5 +1,5 @@
 export const backendUrl = import.meta.env.PROD
-  ? "https://dashboard.kodhub.dev"
+  ? "https://api.kodhub.dev"
   : "http://localhost:3000";
 
 export const api = {
@@ -11,6 +11,8 @@ export const api = {
     dashboard: {
       stats: `${backendUrl}/admin/schools/`,
       logs: `${backendUrl}/admin/schools/logs`,
+      list: `${backendUrl}/admin/schools/list`,
+      school: `${backendUrl}/admin/schools/:id`,
       createSchool: `${backendUrl}/admin/schools/`,
       updateSchool: `${backendUrl}/admin/schools/:id`,
       deleteSchool: `${backendUrl}/admin/schools/:id`,

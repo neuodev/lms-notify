@@ -75,7 +75,7 @@ export function AdminSidebar() {
                     >
                       <Link href={item.url} className="flex items-center gap-3">
                         <item.icon
-                          className={`w-5 h-5 ${isActive ? "text-primary-foreground" : "text-sidebar-foreground/60"}`}
+                          className={`w-5 h-5 ${isActive ? "text-primary" : "text-sidebar-foreground/60"}`}
                         />
                         <span>{item.title}</span>
                       </Link>

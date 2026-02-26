@@ -27,9 +27,10 @@ export default function Logs() {
     schoolId: "ALL",
   });
 
-  const { data: schools } = useSchools();
+  const { data: schoolsData } = useSchools();
+  const schools = schoolsData?.data.schools;
   const {
-    data: logs,
+    data: logsData,
     isLoading,
     refetch,
   } = useLogs(
@@ -39,6 +40,8 @@ export default function Logs() {
         }
       : undefined,
   );
+
+  const logs = logsData?.data;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -102,10 +105,7 @@ export default function Logs() {
                   Message
                 </TableHead>
                 <TableHead className="font-semibold text-foreground text-center">
-                  Success
-                </TableHead>
-                <TableHead className="font-semibold text-foreground text-center">
-                  Failed
+                  Status
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -126,7 +126,7 @@ export default function Logs() {
                   </TableCell>
                 </TableRow>
               ) : (
-                logs?.map((log: any) => (
+                logs?.map((log) => (
                   <TableRow
                     key={log.id}
                     className="hover:bg-muted/30 transition-colors"
@@ -145,22 +145,14 @@ export default function Logs() {
                       {log.recipient}
                     </TableCell>
                     <TableCell
-                      className="max-w-[300px] truncate text-muted-foreground text-sm"
+                      className="max-w-75 truncate text-muted-foreground text-sm"
                       title={log.message}
                     >
                       {log.message}
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                        {log.successCount}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge
-                        variant="destructive"
-                        className="bg-red-500/10 text-red-600 border-red-200"
-                      >
-                        {log.failedCount}
+                        {log.status}
                       </Badge>
                     </TableCell>
                   </TableRow>

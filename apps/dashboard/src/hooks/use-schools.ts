@@ -3,43 +3,88 @@ import { apiRequest } from "@/lib/queryClient";
 import type { CreateSchoolPayload, UpdateSchoolPayload } from "@/types/school";
 import { api, buildUrl } from "@/lib/api";
 import { toast } from "sonner";
+import z from "zod";
+
+export const schoolSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  lmsType: z.union([
+    z.literal("LERNOVIA"),
+    z.literal("CLASSERA"),
+    z.literal("TEAMS"),
+    z.literal("COLIGO"),
+  ]),
+  sessions: z.number(),
+  password: z.string().nullable().optional(),
+  messageCount: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const messageLogSchema = z.object({
+  error: z.string().nullable(),
+  id: z.string(),
+  createdAt: z.string(),
+  schoolId: z.string(),
+  sessionId: z.string().nullable(),
+  message: z.string(),
+  recipient: z.string(),
+  status: z.union([z.literal("SENT"), z.literal("FAILED")]),
+});
+
+export const individualSchoolSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  lmsType: z.union([
+    z.literal("LERNOVIA"),
+    z.literal("CLASSERA"),
+    z.literal("TEAMS"),
+    z.literal("COLIGO"),
+  ]),
+  password: z.string().nullable().optional(),
+  messageLogs: z.array(messageLogSchema),
+  sessions: z.array(z.string()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const findSchoolsSchema = z.object({
+  success: z.boolean(),
+  data: z.object({
+    schools: z.array(schoolSchema),
+  }),
+});
+
+export const findSchoolSchema = z.object({
+  success: z.boolean(),
+  data: individualSchoolSchema,
+});
 
 export function useSchools() {
   return useQuery({
-    queryKey: [api.schools.list.path],
+    queryKey: [api.admin.dashboard.list],
     queryFn: async () => {
-      const res = await apiRequest("GET", api.admin.dashboard.createSchool);
+      const res = await apiRequest("GET", api.admin.dashboard.list);
       const json = await res.json();
-      const parsed = api.schools.list.responses[200].parse(json);
-      return parsed.data; // Return just the data array
+
+      return findSchoolsSchema.parse(json);
     },
   });
 }
 
 export function useSchool(id: string) {
   return useQuery({
-    queryKey: [api.schools.get.path, id],
+    queryKey: [api.admin.dashboard.school, id],
     queryFn: async () => {
       if (!id) return null;
-      const url = buildUrl(api.schools.get.path, { id });
+      const url = buildUrl(api.admin.dashboard.school, { id });
       const res = await apiRequest("GET", url);
       const json = await res.json();
-      const parsed = api.schools.get.responses[200].parse(json);
-      return parsed.data;
-    },
-    enabled: !!id,
-  });
-}
+      console.log({ json });
 
-export function useSchoolMonthly(id: string) {
-  return useQuery({
-    queryKey: [api.schools.getMonthly.path, id],
-    queryFn: async () => {
-      if (!id) return null;
-      const url = buildUrl(api.schools.getMonthly.path, { id });
-      const res = await apiRequest("GET", url);
-      const json = await res.json();
-      return api.schools.getMonthly.responses[200].parse(json);
+      console.log(findSchoolSchema.safeParse(json).error?.message);
+
+      return findSchoolSchema.parse(json);
     },
     enabled: !!id,
   });
@@ -59,7 +104,10 @@ export function useCreateSchool() {
       return json;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["CREATE_SCHOOL"] });
+      queryClient.invalidateQueries({
+        queryKey: [api.admin.dashboard.createSchool],
+      });
+      queryClient.invalidateQueries({ queryKey: [api.admin.dashboard.list] });
       toast("School created successfully");
     },
     onError: (err: Error) => {
@@ -87,7 +135,10 @@ export function useUpdateSchool() {
       return json;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["SCHOOLS"] });
+      queryClient.invalidateQueries({
+        queryKey: [api.admin.dashboard.updateSchool],
+      });
+      queryClient.invalidateQueries({ queryKey: [api.admin.dashboard.list] });
       toast("School updated successfully");
     },
     onError: (err: Error) => {
@@ -107,7 +158,10 @@ export function useDeleteSchool() {
       await apiRequest("DELETE", url);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["SCHOOLS"] });
+      queryClient.invalidateQueries({
+        queryKey: [api.admin.dashboard.deleteSchool],
+      });
+      queryClient.invalidateQueries({ queryKey: [api.admin.dashboard.list] });
       toast("School deleted successfully");
     },
     onError: (err: Error) => {

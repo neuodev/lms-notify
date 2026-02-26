@@ -1,5 +1,4 @@
-import { useRoute } from "wouter";
-import { useSchool, useSchoolMonthly } from "@/hooks/use-schools";
+import { useSchool } from "@/hooks/use-schools";
 import {
   Card,
   CardContent,
@@ -19,34 +18,39 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import {
-  Building2,
   Clock,
   CheckCircle2,
   XCircle,
   ArrowLeft,
   Loader2,
   Key,
-  BarChart3,
+  // BarChart3,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from "recharts";
+// import {
+//   ResponsiveContainer,
+//   BarChart,
+//   Bar,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   Tooltip,
+//   Legend,
+// } from "recharts";
 
-export default function SchoolDetail() {
-  const [, params] = useRoute("/schools/:id");
+const SchoolDetail = () => {
+  console.log("Here");
+
+  const params = useParams();
+  console.log({ params });
+
   const id = params?.id || "";
-  const { data: school, isLoading } = useSchool(id);
-  const { data: monthlyData, isLoading: isMonthlyLoading } =
-    useSchoolMonthly(id);
+  console.log({ id });
+  const { data, isLoading } = useSchool(id);
+  console.log({ data });
+
+  const school = data?.data;
 
   if (isLoading) {
     return (
@@ -68,14 +72,15 @@ export default function SchoolDetail() {
   }
 
   const logs = school.messageLogs || [];
+
   let totalSuccess = 0;
   let totalFailed = 0;
-  logs.forEach((l: any) => {
-    totalSuccess += l.successCount || 0;
-    totalFailed += l.failedCount || 0;
+  logs.forEach((l) => {
+    if (l.status === "SENT") totalSuccess++;
+    else totalFailed++;
   });
 
-  const sessions = school.activeSessions || [];
+  const sessions = school.sessions;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -104,7 +109,7 @@ export default function SchoolDetail() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm border-border/50 bg-gradient-to-br from-card to-primary/5">
+        <Card className="shadow-sm border-border/50 bg-linear-to-br from-card to-primary/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Key className="w-4 h-4 text-primary" /> System ID
@@ -143,66 +148,11 @@ export default function SchoolDetail() {
         </Card>
       </div>
 
-      <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="analytics">Monthly Data</TabsTrigger>
+      <Tabs defaultValue="logs" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="logs">Recent Logs</TabsTrigger>
           <TabsTrigger value="sessions">Active Sessions</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="analytics" className="mt-6">
-          <Card className="shadow-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" /> Monthly Performance
-              </CardTitle>
-              <CardDescription>
-                Message delivery trends over the last few months.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isMonthlyLoading ? (
-                <div className="h-[300px] flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                </div>
-              ) : monthlyData && monthlyData.length > 0 ? (
-                <div className="h-[300px] w-full mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          borderColor: "hsl(var(--border))",
-                        }}
-                        itemStyle={{ color: "hsl(var(--foreground))" }}
-                      />
-                      <Legend />
-                      <Bar
-                        dataKey="success"
-                        name="Success"
-                        fill="#10b981"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="failed"
-                        name="Failed"
-                        fill="#ef4444"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="text-center py-10 text-muted-foreground bg-muted/20 rounded-lg">
-                  No monthly data available yet.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="logs" className="mt-6">
           <Card className="shadow-sm border-border/50">
@@ -224,12 +174,11 @@ export default function SchoolDetail() {
                       <TableHead>Time</TableHead>
                       <TableHead>Recipient</TableHead>
                       <TableHead>Message Preview</TableHead>
-                      <TableHead>Success</TableHead>
-                      <TableHead>Failed</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {logs.slice(0, 50).map((log: any) => (
+                    {logs.slice(0, 50).map((log) => (
                       <TableRow key={log.id}>
                         <TableCell className="text-sm whitespace-nowrap">
                           {format(new Date(log.createdAt), "MMM d, HH:mm:ss")}
@@ -242,15 +191,7 @@ export default function SchoolDetail() {
                         </TableCell>
                         <TableCell>
                           <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                            {log.successCount}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="destructive"
-                            className="bg-red-500/10 text-red-600 border-red-200"
-                          >
-                            {log.failedCount}
+                            {log.status}
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -285,10 +226,10 @@ export default function SchoolDetail() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sessions.map((session: any, i: number) => (
+                    {sessions.map((session, i: number) => (
                       <TableRow key={i}>
                         <TableCell className="font-mono text-xs">
-                          {session.id || "Unknown"}
+                          {session || "Unknown"}
                         </TableCell>
                         <TableCell>Now</TableCell>
                         <TableCell>
@@ -305,4 +246,6 @@ export default function SchoolDetail() {
       </Tabs>
     </div>
   );
-}
+};
+
+export default SchoolDetail;
