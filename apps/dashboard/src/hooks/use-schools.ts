@@ -43,7 +43,7 @@ export const individualSchoolSchema = z.object({
   ]),
   password: z.string().nullable().optional(),
   messageLogs: z.array(messageLogSchema),
-  sessions: z.array(z.string()),
+  activeSessions: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -82,7 +82,7 @@ export function useSchool(id: string) {
       const json = await res.json();
       console.log({ json });
 
-      console.log(findSchoolSchema.safeParse(json).error?.message);
+      console.log(findSchoolSchema.safeParse(json));
 
       return findSchoolSchema.parse(json);
     },

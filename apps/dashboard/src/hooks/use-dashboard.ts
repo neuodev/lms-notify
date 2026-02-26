@@ -28,10 +28,8 @@ export function useDashboardStats() {
       });
       if (!res.ok) throw new Error("Failed to fetch dashboard stats");
       const data = await res.json();
-      console.log({ data });
 
       const parsed = statsSchema.parse(data);
-      console.log({ parsed });
 
       return parsed;
     },

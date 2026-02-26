@@ -24,31 +24,14 @@ import {
   ArrowLeft,
   Loader2,
   Key,
-  // BarChart3,
 } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
-// import {
-//   ResponsiveContainer,
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   Legend,
-// } from "recharts";
 
 const SchoolDetail = () => {
-  console.log("Here");
-
   const params = useParams();
-  console.log({ params });
-
   const id = params?.id || "";
-  console.log({ id });
   const { data, isLoading } = useSchool(id);
-  console.log({ data });
 
   const school = data?.data;
 
@@ -59,6 +42,7 @@ const SchoolDetail = () => {
       </div>
     );
   }
+  console.log({ school, data, isLoading });
 
   if (!school) {
     return (
@@ -80,7 +64,7 @@ const SchoolDetail = () => {
     else totalFailed++;
   });
 
-  const sessions = school.sessions;
+  const sessions = school.activeSessions;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

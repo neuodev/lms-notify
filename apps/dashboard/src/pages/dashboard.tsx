@@ -17,9 +17,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { CreateSchoolDialog } from "@/components/dialogs/school";
+import { useState } from "react";
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboardStats();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const stats = data?.data;
 
@@ -162,17 +167,25 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 rounded-xl border border-border bg-card hover:border-primary/50 transition-colors cursor-pointer group hover-elevate">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="font-semibold group-hover:text-primary transition-colors">
-                  Add New School
-                </h4>
-                <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Onboard a new LMS integration client.
-              </p>
-            </div>
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant={"ghost"}
+                  className="p-4 block h-full w-full rounded-xl border border-border bg-card hover:border-primary/50 transition-colors cursor-pointer group hover-elevate"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-semibold group-hover:text-primary transition-colors">
+                      Add New School
+                    </h4>
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-sm whitespace-break-spaces text-left text-muted-foreground">
+                    Onboard a new LMS integration client.
+                  </p>
+                </Button>
+              </DialogTrigger>
+              <CreateSchoolDialog onClose={() => setCreateOpen(false)} />
+            </Dialog>
           </CardContent>
         </Card>
       </div>
