@@ -93,18 +93,22 @@ router.get("/list", async (_, res) => {
     },
   });
 
+  const sessions = sessionManager.getAllSessions();
+  const schoolsWithSessions = schools.map((school) => ({
+    id: school.id,
+    name: school.name,
+    lmsType: school.lmsType,
+    createdAt: school.createdAt,
+    updatedAt: school.updatedAt,
+    messageCount: school._count.messageLogs,
+    sessions: sessions.filter((session) => session.schoolId === school.id)
+      .length,
+  }));
+
   return res.status(200).json({
     success: true,
     data: {
-      schools: schools.map((school) => ({
-        id: school.id,
-        name: school.name,
-        lmsType: school.lmsType,
-        sessions: school.sessions.length,
-        createdAt: school.createdAt,
-        updatedAt: school.updatedAt,
-        messageCount: school._count.messageLogs,
-      })),
+      schools: schoolsWithSessions,
     },
   });
 });
